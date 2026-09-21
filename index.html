@@ -1405,5 +1405,910 @@ footer a {
 
                     <button
                         class="text-color"
-                        style="backgrou
+                        style="background:#d64545"
+                        onclick="changeTextColor('#d64545',this)"
+                    ></button>
+
+                    <button
+                        class="text-color"
+                        style="background:#426fa8"
+                        onclick="changeTextColor('#426fa8',this)"
+                    ></button>
+
+                    <button
+                        class="text-color"
+                        style="background:#e3bd3c"
+                        onclick="changeTextColor('#e3bd3c',this)"
+                    ></button>
+
+                    <button
+                        class="text-color"
+                        style="background:#8c6bb1"
+                        onclick="changeTextColor('#8c6bb1',this)"
+                    ></button>
+
+                </div>
+
+            </div>
+
+
+            <!-- TEXT SIZE -->
+
+            <div class="control-group">
+
+                <label>
+                    8. Kích thước chữ
+                </label>
+
+                <input
+                    type="range"
+                    class="range"
+                    min="12"
+                    max="70"
+                    value="30"
+                    oninput="changeTextSize(this.value)"
+                >
+
+            </div>
+
+
+            <!-- MOVE -->
+
+            <div class="control-group">
+
+                <label>
+                    9. Di chuyển chữ
+                </label>
+
+                <div class="move-buttons">
+
+                    <button
+                        class="move-up"
+                        onclick="moveText(0,-10)"
+                    >
+                        ↑
+                    </button>
+
+                    <button
+                        class="move-left"
+                        onclick="moveText(-10,0)"
+                    >
+                        ←
+                    </button>
+
+                    <button
+                        class="move-down"
+                        onclick="moveText(0,10)"
+                    >
+                        ↓
+                    </button>
+
+                    <button
+                        class="move-right"
+                        onclick="moveText(10,0)"
+                    >
+                        →
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ACTION -->
+
+            <div class="design-actions">
+
+                <button
+                    class="add-cart"
+                    onclick="addToCart()"
+                >
+                    🛒 THÊM THIẾT KẾ VÀO GIỎ
+                </button>
+
+                <button
+                    class="reset-btn"
+                    onclick="resetDesign()"
+                >
+                    ↻ ĐẶT LẠI THIẾT KẾ
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     CATEGORY
+===================================================== -->
+
+<section id="category">
+
+    <div class="section-title">
+
+        <span>KHÁM PHÁ</span>
+
+        <h2>
+            Danh mục sản phẩm
+        </h2>
+
+    </div>
+
+
+    <div class="categories">
+
+        <div class="category">
+
+            <div class="category-content">
+
+                <h3>Áo</h3>
+
+                <p>
+                    Khám phá bộ sưu tập áo mới →
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="category">
+
+            <div class="category-content">
+
+                <h3>Quần</h3>
+
+                <p>
+                    Phong cách thoải mái mỗi ngày →
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="category">
+
+            <div class="category-content">
+
+                <h3>Phụ kiện</h3>
+
+                <p>
+                    Hoàn thiện outfit của bạn →
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PRODUCTS
+===================================================== -->
+
+<section id="shop">
+
+    <div class="section-title">
+
+        <span>BEST SELLER</span>
+
+        <h2>
+            Sản phẩm nổi bật
+        </h2>
+
+    </div>
+
+
+    <div class="products">
+
+        <div class="product">
+
+            <span class="badge">
+                NEW
+            </span>
+
+            <div class="product-image">
+
+                <div class="shirt"></div>
+
+            </div>
+
+            <div class="product-info">
+
+                <h3>
+                    Oversized Black T-Shirt
+                </h3>
+
+                <span class="price">
+                    399.000₫
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="product">
+
+            <div class="product-image">
+
+                <div class="shirt white"></div>
+
+            </div>
+
+            <div class="product-info">
+
+                <h3>
+                    Essential White Shirt
+                </h3>
+
+                <span class="price">
+                    459.000₫
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="product">
+
+            <span class="badge">
+                SALE
+            </span>
+
+            <div class="product-image">
+
+                <div class="shirt brown"></div>
+
+            </div>
+
+            <div class="product-info">
+
+                <h3>
+                    Classic Brown Shirt
+                </h3>
+
+                <span class="price">
+                    349.000₫
+                </span>
+
+                <span class="old-price">
+                    499.000₫
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <div class="product">
+
+            <span class="badge">
+                NEW
+            </span>
+
+            <div class="product-image">
+
+                <div class="shirt green"></div>
+
+            </div>
+
+            <div class="product-info">
+
+                <h3>
+                    Relaxed Green Tee
+                </h3>
+
+                <span class="price">
+                    429.000₫
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =====================================================
+     PROMOTION
+===================================================== -->
+
+<div class="promo" id="sale">
+
+    <div>
+
+        <span>
+            LIMITED OFFER
+        </span>
+
+        <h2>
+            SALE UP TO 50%
+        </h2>
+
+        <p>
+            Ưu đãi đặc biệt cho bộ sưu tập được yêu thích.
+        </p>
+
+        <a href="#shop" class="btn">
+            XEM SALE →
+        </a>
+
+    </div>
+
+    <div style="font-size:100px;">
+        ✦
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     NEWSLETTER
+===================================================== -->
+
+<section class="newsletter">
+
+    <h2>
+        Đăng ký nhận tin
+    </h2>
+
+    <p>
+        Nhận thông báo về sản phẩm mới và chương trình ưu đãi.
+    </p>
+
+    <form
+        class="email-box"
+        onsubmit="subscribe(event)"
+    >
+
+        <input
+            type="email"
+            placeholder="Email của bạn..."
+            required
+        >
+
+        <button type="submit">
+            ĐĂNG KÝ
+        </button>
+
+    </form>
+
+</section>
+
+
+<!-- =====================================================
+     FOOTER
+===================================================== -->
+
+<footer id="contact">
+
+    <div class="footer-grid">
+
+        <div>
+
+            <h3>LUMI</h3>
+
+            <p>
+                Thời trang tối giản dành cho những người
+                yêu thích phong cách hiện đại.
+            </p>
+
+        </div>
+
+
+        <div>
+
+            <h3>Mua sắm</h3>
+
+            <a href="#">
+                Sản phẩm mới
+            </a><br>
+
+            <a href="#">
+                Áo
+            </a><br>
+
+            <a href="#">
+                Quần
+            </a><br>
+
+            <a href="#">
+                Phụ kiện
+            </a>
+
+        </div>
+
+
+        <div>
+
+            <h3>Hỗ trợ</h3>
+
+            <a href="#">
+                Liên hệ
+            </a><br>
+
+            <a href="#">
+                Vận chuyển
+            </a><br>
+
+            <a href="#">
+                Đổi trả
+            </a><br>
+
+            <a href="#">
+                FAQ
+            </a>
+
+        </div>
+
+
+        <div>
+
+            <h3>Theo dõi</h3>
+
+            <a href="#">
+                Facebook
+            </a><br>
+
+            <a href="#">
+                Instagram
+            </a><br>
+
+            <a href="#">
+                TikTok
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="copyright">
+
+        © 2026 LUMI Fashion.
+        All rights reserved.
+
+    </div>
+
+</footer>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
+
+<script>
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let selectedSize = "M";
+
+let shirtColor = "#222";
+
+let selectedObject = "text";
+
+let dragging = false;
+
+let dragOffsetX = 0;
+
+let dragOffsetY = 0;
+
+
+/* =====================================================
+   SHIRT COLOR
+===================================================== */
+
+function changeShirtColor(color, button) {
+
+    shirtColor = color;
+
+    document.getElementById("shirtBody").style.background = color;
+
+    document.getElementById("shirtLeft").style.background = color;
+
+    document.getElementById("shirtRight").style.background = color;
+
+    document.querySelectorAll(".color-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+}
+
+
+/* =====================================================
+   SHIRT TYPE
+===================================================== */
+
+function changeShirtType(type, button) {
+
+    document.querySelectorAll(".type-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+    const tshirt = document.getElementById("tshirt");
+
+    if (type === "hoodie") {
+
+        tshirt.style.width = "390px";
+
+        tshirt.style.height = "450px";
+
+        document.getElementById("shirtBody")
+            .style.borderRadius = "15px 15px 20px 20px";
+
+        document.getElementById("shirtLeft")
+            .style.height = "45%";
+
+        document.getElementById("shirtRight")
+            .style.height = "45%";
+
+    } else {
+
+        tshirt.style.width = "370px";
+
+        tshirt.style.height = "430px";
+
+        document.getElementById("shirtBody")
+            .style.borderRadius = "5px 5px 10px 10px";
+
+        document.getElementById("shirtLeft")
+            .style.height = "35%";
+
+        document.getElementById("shirtRight")
+            .style.height = "35%";
+
+    }
+
+}
+
+
+/* =====================================================
+   SIZE
+===================================================== */
+
+function selectSize(size, button) {
+
+    selectedSize = size;
+
+    document.querySelectorAll(".size-btn")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+}
+
+
+/* =====================================================
+   TEXT INPUT
+===================================================== */
+
+function changeText(value) {
+
+    document.getElementById("customText").textContent =
+        value || " ";
+
+}
+
+
+/* =====================================================
+   FONT
+===================================================== */
+
+function changeFont(font) {
+
+    document.getElementById("customText")
+        .style.fontFamily = font;
+
+}
+
+
+/* =====================================================
+   TEXT COLOR
+===================================================== */
+
+function changeTextColor(color, button) {
+
+    document.getElementById("customText")
+        .style.color = color;
+
+    document.querySelectorAll(".text-color")
+        .forEach(btn => btn.classList.remove("active"));
+
+    button.classList.add("active");
+
+}
+
+
+/* =====================================================
+   TEXT SIZE
+===================================================== */
+
+function changeTextSize(size) {
+
+    document.getElementById("customText")
+        .style.fontSize = size + "px";
+
+}
+
+
+/* =====================================================
+   MOVE TEXT
+===================================================== */
+
+function moveText(x, y) {
+
+    const text = document.getElementById("customText");
+
+    let left = parseFloat(text.style.left || "50");
+
+    let top = parseFloat(text.style.top || "45");
+
+    left += x / 4;
+
+    top += y / 4;
+
+    left = Math.max(10, Math.min(90, left));
+
+    top = Math.max(10, Math.min(90, top));
+
+    text.style.left = left + "%";
+
+    text.style.top = top + "%";
+
+}
+
+
+/* =====================================================
+   UPLOAD IMAGE
+===================================================== */
+
+function uploadImage(event) {
+
+    const file = event.target.files[0];
+
+    if (!file) {
+        return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+
+        alert("Vui lòng chọn một file hình ảnh.");
+
+        return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+        const image =
+            document.getElementById("customImage");
+
+        image.src = e.target.result;
+
+        image.style.display = "block";
+
+        image.style.left = "50%";
+
+        image.style.top = "65%";
+
+    };
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* =====================================================
+   DRAG OBJECT
+===================================================== */
+
+function startDrag(event, object) {
+
+    event.preventDefault();
+
+    selectedObject = object;
+
+    dragging = true;
+
+    const element =
+        object === "text"
+            ? document.getElementById("customText")
+            : document.getElementById("customImage");
+
+    element.classList.add("selected");
+
+    const rect = element.getBoundingClientRect();
+
+    dragOffsetX =
+        event.clientX - rect.left - rect.width / 2;
+
+    dragOffsetY =
+        event.clientY - rect.top - rect.height / 2;
+
+    document.addEventListener(
+        "pointermove",
+        dragMove
+    );
+
+    document.addEventListener(
+        "pointerup",
+        stopDrag
+    );
+
+}
+
+
+/* =====================================================
+   DRAG MOVE
+===================================================== */
+
+function dragMove(event) {
+
+    if (!dragging) {
+        return;
+    }
+
+    const printArea =
+        document.getElementById("printArea");
+
+    const element =
+        selectedObject === "text"
+            ? document.getElementById("customText")
+            : document.getElementById("customImage");
+
+    const areaRect =
+        printArea.getBoundingClientRect();
+
+    let x =
+        ((event.clientX - areaRect.left)
+        / areaRect.width) * 100;
+
+    let y =
+        ((event.clientY - areaRect.top)
+        / areaRect.height) * 100;
+
+    x = Math.max(5, Math.min(95, x));
+
+    y = Math.max(5, Math.min(95, y));
+
+    element.style.left = x + "%";
+
+    element.style.top = y + "%";
+
+}
+
+
+/* =====================================================
+   STOP DRAG
+===================================================== */
+
+function stopDrag() {
+
+    dragging = false;
+
+    document.getElementById("customText")
+        .classList.remove("selected");
+
+    document.getElementById("customImage")
+        .classList.remove("selected");
+
+    document.removeEventListener(
+        "pointermove",
+        dragMove
+    );
+
+    document.removeEventListener(
+        "pointerup",
+        stopDrag
+    );
+
+}
+
+
+/* =====================================================
+   RESET DESIGN
+===================================================== */
+
+function resetDesign() {
+
+    const text =
+        document.getElementById("customText");
+
+    const image =
+        document.getElementById("customImage");
+
+    text.textContent = "LUMI";
+
+    text.style.left = "50%";
+
+    text.style.top = "45%";
+
+    text.style.fontSize = "30px";
+
+    text.style.fontFamily = "Arial";
+
+    text.style.color = "#fff";
+
+    image.style.display = "none";
+
+    image.src = "";
+
+    document.getElementById("textInput").value = "LUMI";
+
+    alert("Thiết kế đã được đặt lại.");
+
+}
+
+
+/* =====================================================
+   ADD TO CART
+===================================================== */
+
+function addToCart() {
+
+    const text =
+        document.getElementById("customText").textContent;
+
+    const image =
+        document.getElementById("customImage");
+
+    const hasImage =
+        image.style.display !== "none";
+
+    const message =
+
+        "THIẾT KẾ CỦA BẠN\n\n" +
+
+        "Kiểu áo: Áo thun\n" +
+
+        "Màu: " + shirtColor + "\n" +
+
+        "Size: " + selectedSize + "\n" +
+
+        "Chữ: " + text + "\n" +
+
+        "Hình ảnh: " +
+        (hasImage ? "Đã thêm" : "Không có") +
+
+        "\n\nĐã thêm thiết kế vào giỏ hàng!";
+
+    alert(message);
+
+}
+
+
+/* =====================================================
+   NEWSLETTER
+===================================================== */
+
+function subscribe(event) {
+
+    event.preventDefault();
+
+    alert(
+        "Cảm ơn bạn đã đăng ký nhận tin từ LUMI!"
+    );
+
+}
+
+</script>
+
+</body>
+</html>
 ```
