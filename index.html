@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LUMI - Thời Trang Hiện Đại</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      color: #222;
+      background: #fff;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* HEADER */
+    header {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 7%;
+      border-bottom: 1px solid #eee;
+      background: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 4px;
+    }
+
+    nav {
+      display: flex;
+      gap: 30px;
+    }
+
+    nav a {
+      font-size: 14px;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    nav a:hover {
+      color: #9b6b43;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 18px;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* HERO */
+    .hero {
+      min-height: 620px;
+      background:
+        linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
+        linear-gradient(120deg, #c8b39d, #eee4d8);
+      display: flex;
+      align-items: center;
+      padding: 0 9%;
+      color: white;
+    }
+
+    .hero-content {
+      max-width: 600px;
+    }
+
+    .hero-content span {
+      font-size: 14px;
+      letter-spacing: 4px;
+    }
+
+    .hero h1 {
+      font-size: clamp(45px, 7vw, 82px);
+      line-height: 1;
+      margin: 20px 0;
+      font-weight: 800;
+    }
+
+    .hero p {
+      font-size: 17px;
+      margin-bottom: 30px;
+      line-height: 1.7;
+    }
+
+    .btn {
+      display: inline-block;
+      background: white;
+      color: #222;
+      padding: 15px 30px;
+      font-size: 13px;
+      font-weight: bold;
+      transition: .3s;
+    }
+
+    .btn:hover {
+      background: #222;
+      color: white;
+    }
+
+    /* SECTION */
+    section {
+      padding: 80px 7%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 45px;
+    }
+
+    .section-title span {
+      color: #9b6b43;
+      font-size: 13px;
+      letter-spacing: 3px;
+      font-weight: bold;
+    }
+
+    .section-title h2 {
+      font-size: 36px;
+      margin-top: 10px;
+    }
+
+    /* CATEGORIES */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .category {
+      height: 300px;
+      background: linear-gradient(135deg, #ddd, #aaa);
+      display: flex;
+      align-items: flex-end;
+      padding: 25px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .category:nth-child(2) {
+      background: linear-gradient(135deg, #e5d4c6, #b69b86);
+    }
+
+    .category:nth-child(3) {
+      background: linear-gradient(135deg, #d4d8d5, #8d9690);
+    }
+
+    .category-content {
+      color: white;
+      position: relative;
+      z-index: 2;
+    }
+
+    .category h3 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .category p {
+      font-size: 13px;
+    }
+
+    /* PRODUCTS */
+    .products {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+    }
+
+    .product {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .product-image {
+      height: 380px;
+      background: #eee;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-image::after {
+      content: "XEM SẢN PHẨM";
+      position: absolute;
+      bottom: -50px;
+      left: 0;
+      width: 100%;
+      background: rgba(0,0,0,.8);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 12px;
+      transition: .3s;
+    }
+
+    .product:hover .product-image::after {
+      bottom: 0;
+    }
+
+    .shirt {
+      width: 55%;
+      height: 65%;
+      background: #222;
+      clip-path: polygon(
+        20% 0, 38% 10%, 50% 18%, 62% 10%, 80% 0,
+        100% 25%, 82% 38%, 75% 28%, 75% 100%,
+        25% 100%, 25% 28%, 18% 38%, 0 25%
+      );
+    }
+
+    .shirt.white {
+      background: #f7f7f7;
+    }
+
+    .shirt.brown {
+      background: #9a7357;
+    }
+
+    .shirt.green {
+      background: #65766b;
+    }
+
+    .product-info {
+      padding: 15px 2px;
+    }
+
+    .product-info h3 {
+      font-size: 15px;
+      margin-bottom: 8px;
+    }
+
+    .price {
+      font-weight: bold;
+    }
+
+    .old-price {
+      color: #999;
+      text-decoration: line-through;
+      font-size: 13px;
+      margin-left: 8px;
+    }
+
+    .badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #222;
+      color: white;
+      padding: 7px 12px;
+      font-size: 10px;
+      z-index: 3;
+    }
+
+    /* BANNER */
+    .promo {
+      background: #eee6dd;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 60px 8%;
+      margin: 20px 7%;
+    }
+
+    .promo h2 {
+      font-size: 42px;
+      margin: 10px 0;
+    }
+
+    .promo p {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    .promo .btn {
+      background: #222;
+      color: white;
+    }
+
+    /* NEWSLETTER */
+    .newsletter {
+      text-align: center;
+      background: #f7f7f7;
+    }
+
+    .newsletter h2 {
+      font-size: 32px;
+      margin-bottom: 12px;
+    }
+
+    .newsletter p {
+      color: #777;
+      margin-bottom: 25px;
+    }
+
+    .email-box {
+      display: flex;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    .email-box input {
+      flex: 1;
+      border: 1px solid #ddd;
+      padding: 15px;
+      outline: none;
+    }
+
+    .email-box button {
+      border: none;
+      background: #222;
+      color: white;
+      padding: 0 25px;
+      cursor: pointer;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #181818;
+      color: white;
+      padding: 60px 7% 25px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    footer h3 {
+      margin-bottom: 18px;
+    }
+
+    footer p,
+    footer a {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 2;
+    }
+
+    .copyright {
+      border-top: 1px solid #333;
+      padding-top: 20px;
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      nav {
+        display: none;
+      }
+
+      .products {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .categories {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 0 5%;
+      }
+
+      .hero {
+        min-height: 550px;
+        padding: 0 7%;
+      }
+
+      section {
+        padding: 60px 5%;
+      }
+
+      .products {
+        grid-template-columns: 1fr;
+      }
+
+      .product-image {
+        height: 420px;
+      }
+
+      .promo {
+        margin: 10px 5%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 30px;
+      }
+
+      .promo h2 {
+        font-size: 32px;
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .email-box {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .email-box input,
+      .email-box button {
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">LUMI</div>
+
+    <nav>
+      <a href="#">TRANG CHỦ</a>
+      <a href="#shop">SẢN PHẨM</a>
+      <a href="#category">DANH MỤC</a>
+      <a href="#sale">SALE</a>
+      <a href="#contact">LIÊN HỆ</a>
+    </nav>
+
+    <div class="header-icons">
+      <span>⌕</span>
+      <span>♡</span>
+      <span>🛒</span>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-content">
+      <span>BỘ SƯU TẬP MỚI 2026</span>
+      <h1>NEW<br>SEASON</h1>
+      <p>
+        Khám phá phong cách mới với những thiết kế tối giản,
+        hiện đại và phù hợp cho mọi ngày.
+      </p>
+      <a href="#shop" class="btn">MUA SẮM NGAY →</a>
+    </div>
+  </div>
+
+  <!-- CATEGORY -->
+  <section id="category">
+    <div class="section-title">
+      <span>KHÁM PHÁ</span>
+      <h2>Danh mục sản phẩm</h2>
+    </div>
+
+    <div class="categories">
+      <div class="category">
+        <div class="category-content">
+          <h3>Áo</h3>
+          <p>Khám phá bộ sưu tập áo mới →</p>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="category-content">
+          <h3>Quần</h3>
+          <p>Phong cách thoải mái mỗi ngày →</p>
+        </div>
+      </div>
+
+      <div class="category">
+        <div class="category-content">
+          <h3>Phụ kiện</h3>
+          <p>Hoàn thiện outfit của bạn →</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section id="shop">
+    <div class="section-title">
+      <span>BEST SELLER</span>
+      <h2>Sản phẩm nổi bật</h2>
+    </div>
+
+    <div class="products">
+
+      <div class="product">
+        <span class="badge">NEW</span>
+        <div class="product-image">
+          <div class="shirt"></div>
+        </div>
+        <div class="product-info">
+          <h3>Oversized Black T-Shirt</h3>
+          <span class="price">399.000₫</span>
+        </div>
+      </div>
+
+      <div class="product">
+        <div class="product-image">
+          <div class="shirt white"></div>
+        </div>
+        <div class="product-info">
+          <h3>Essential White Shirt</h3>
+          <span class="price">459.000₫</span>
+        </div>
+      </div>
+
+      <div class="product">
+        <span class="badge">SALE</span>
+        <div class="product-image">
+          <div class="shirt brown"></div>
+        </div>
+        <div class="product-info">
+          <h3>Classic Brown Shirt</h3>
+          <span class="price">349.000₫</span>
+          <span class="old-price">499.000₫</span>
+        </div>
+      </div>
+
+      <div class="product">
+        <span class="badge">NEW</span>
+        <div class="product-image">
+          <div class="shirt green"></div>
+        </div>
+        <div class="product-info">
+          <h3>Relaxed Green Tee</h3>
+          <span class="price">429.000₫</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- PROMOTION -->
+  <div class="promo" id="sale">
+    <div>
+      <span>LIMITED OFFER</span>
+      <h2>SALE UP TO 50%</h2>
+      <p>Ưu đãi đặc biệt cho bộ sưu tập được yêu thích.</p>
+      <a href="#shop" class="btn">XEM SALE →</a>
+    </div>
+
+    <div style="font-size:100px;">✦</div>
+  </div>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <h2>Đăng ký nhận tin</h2>
+    <p>Nhận thông báo về sản phẩm mới và chương trình ưu đãi.</p>
+
+    <form class="email-box" onsubmit="subscribe(event)">
+      <input type="email" placeholder="Email của bạn..." required>
+      <button type="submit">ĐĂNG KÝ</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact">
+    <div class="footer-grid">
+
+      <div>
+        <h3>LUMI</h3>
+        <p>
+          Thời trang tối giản dành cho những người
+          yêu thích phong cách hiện đại.
+        </p>
+      </div>
+
+      <div>
+        <h3>Mua sắm</h3>
+        <a href="#">Sản phẩm mới</a><br>
+        <a href="#">Áo</a><br>
+        <a href="#">Quần</a><br>
+        <a href="#">Phụ kiện</a>
+      </div>
+
+      <div>
+        <h3>Hỗ trợ</h3>
+        <a href="#">Liên hệ</a><br>
+        <a href="#">Vận chuyển</a><br>
+        <a href="#">Đổi trả</a><br>
+        <a href="#">FAQ</a>
+      </div>
+
+      <div>
+        <h3>Theo dõi</h3>
+        <a href="#">Facebook</a><br>
+        <a href="#">Instagram</a><br>
+        <a href="#">TikTok</a>
+      </div>
+
+    </div>
+
+    <div class="copyright">
+      © 2026 LUMI Fashion. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    function subscribe(event) {
+      event.preventDefault();
+      alert("Cảm ơn bạn đã đăng ký nhận tin từ LUMI!");
+    }
+  </script>
+
+</body>
+</html>
