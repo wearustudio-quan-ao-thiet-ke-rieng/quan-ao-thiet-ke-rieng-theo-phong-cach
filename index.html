@@ -1,177 +1,385 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>WEARU.STUDIO - Thiết kế thời trang cá nhân</title>
+    <style>
+        /* Reset & cơ bản */
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0; padding: 0;
+            background-color: #fff;
+            color: #4b3832; /* màu nâu đậm */
+        }
+        a {
+            text-decoration: none;
+            color: #4b3832;
+        }
+        a:hover {
+            color: #7b5e57;
+        }
 
-<title>LUMI - Thời Trang Hiện Đại</title>
+        /* Header */
+        header {
+            background-color: #4b3832;
+            color: #fff;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        nav a {
+            margin-left: 20px;
+            font-weight: bold;
+            font-size: 16px;
+            color: #fff;
+        }
+        nav a:hover {
+            color: #d7ccc8;
+        }
 
-<style>
+        /* Footer */
+        footer {
+            background-color: #4b3832;
+            color: #fff;
+            text-align: center;
+            padding: 15px 10px;
+            margin-top: 40px;
+            font-size: 14px;
+        }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+        /* Container */
+        .container {
+            max-width: 980px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
 
-body {
-    font-family: Arial, Helvetica, sans-serif;
-    color: #222;
-    background: #fff;
-}
+        /* Trang chủ */
+        #home {
+            display: block;
+        }
+        #design, #collection, #login {
+            display: none;
+        }
+        .intro {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .intro img {
+            max-width: 100%;
+            border-radius: 8px;
+        }
 
-a {
-    text-decoration: none;
-    color: inherit;
-}
+        /* Button */
+        button, input[type="submit"] {
+            background-color: #4b3832;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover, input[type="submit"]:hover {
+            background-color: #7b5e57;
+        }
 
-/* ================= HEADER ================= */
+        /* Form input */
+        input[type="text"], input[type="tel"], select {
+            padding: 8px 10px;
+            margin: 5px 0 15px;
+            width: 100%;
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
-header {
-    height: 72px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 7%;
-    border-bottom: 1px solid #eee;
-    background: white;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
+        label {
+            font-weight: bold;
+            display: block;
+        }
 
-.logo {
-    font-size: 28px;
-    font-weight: 800;
-    letter-spacing: 4px;
-}
+        /* Design page layout */
+        .design-section {
+            margin-bottom: 30px;
+        }
+        .design-section label {
+            margin-bottom: 6px;
+            display: inline-block;
+        }
+        .preview-shirt {
+            width: 250px;
+            height: 300px;
+            background-color: #d7ccc8;
+            margin-top: 10px;
+            border-radius: 10px;
+            position: relative;
+        }
+        .preview-shirt .shirt-part {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        /* Simplified shirt parts for color selection */
+        .shirt-body { top: 0; left: 0; background-color: #fff; }
 
-nav {
-    display: flex;
-    gap: 30px;
-}
+        /* Collection page */
+        .collection-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .item-card {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 220px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgb(75 56 50 / 0.3);
+        }
+        .item-card img {
+            max-width: 100%;
+            border-radius: 6px;
+        }
+        .item-card h3 {
+            margin: 10px 0 6px;
+            color: #4b3832;
+        }
+        .item-card button {
+            width: 100%;
+        }
 
-nav a {
-    font-size: 14px;
-    font-weight: 600;
-    transition: .3s;
-}
+        /* Responsive */
+        @media(max-width: 600px) {
+            .collection-grid {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
 
-nav a:hover {
-    color: #9b6b43;
-}
+    </style>
+</head>
+<body>
+    <header>
+        <h1 onclick="showPage('home')">WEARU.STUDIO</h1>
+        <nav>
+            <a href="#" onclick="showPage('home')">Trang Chủ</a>
+            <a href="#" onclick="showPage('design')">Tự Thiết Kế</a>
+            <a href="#" onclick="showPage('collection')">Bộ Sưu Tập</a>
+            <a href="#" onclick="showPage('login')">Đăng Nhập / Liên Hệ</a>
+        </nav>
+    </header>
 
-.header-icons {
-    display: flex;
-    gap: 18px;
-    font-size: 20px;
-}
+    <main class="container">
+        <!-- Trang chủ -->
+        <section id="home">
+            <h2>Chào mừng đến với WEARU.STUDIO</h2>
+            <p class="intro">Chúng tôi chuyên cung cấp dịch vụ thiết kế quần áo cá nhân hóa theo phong cách riêng của bạn. Khách hàng có thể tự thiết kế áo với lựa chọn font chữ, màu sắc, thêm hình ảnh... Tạo ra áo thun, hoodie, áo tay dài độc đáo chỉ dành cho bạn!</p>
+            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80" alt="WEARU.STUDIO - Thời trang cá nhân" />
+            <h3>Thông tin liên hệ</h3>
+            <ul>
+                <li><strong>Điện thoại:</strong> 0908048037</li>
+                <li><strong>Email:</strong> wearu.studio@gmail.com</li>
+                <li><strong>Địa chỉ:</strong> Phường Bình Phú, Thành Phố Hồ Chí Minh</li>
+                <li><strong>Thời gian mở cửa:</strong> 9:00 a.m - 10:00 p.m</li>
+            </ul>
+        </section>
 
-/* ================= HERO ================= */
+        <!-- Trang tự thiết kế -->
+        <section id="design">
+            <h2>Tự Thiết Kế Áo Của Bạn</h2>
 
-.hero {
-    min-height: 620px;
+            <div class="design-section">
+                <label for="shirt-type">Chọn loại áo:</label>
+                <select id="shirt-type" name="shirt-type">
+                    <option value="tshirt">Áo Thun</option>
+                    <option value="longsleeve">Áo Thun Tay Dài</option>
+                    <option value="hoodie">Hoodie</option>
+                </select>
+            </div>
 
-    background:
-        linear-gradient(rgba(0,0,0,.25), rgba(0,0,0,.25)),
-        linear-gradient(120deg, #c8b39d, #eee4d8);
+            <div class="design-section">
+                <label for="font-select">Chọn font chữ:</label>
+                <select id="font-select" name="font-select">
+                    <option style="font-family: Arial;">Arial</option>
+                    <option style="font-family: 'Times New Roman';">Times New Roman</option>
+                    <option style="font-family: 'Courier New';">Courier New</option>
+                    <option style="font-family: Verdana;">Verdana</option>
+                </select>
+            </div>
 
-    display: flex;
-    align-items: center;
-    padding: 0 9%;
-    color: white;
-}
+            <div class="design-section">
+                <label for="text-input">Nội dung chữ trên áo:</label>
+                <input type="text" id="text-input" name="text-input" placeholder="Nhập nội dung..." />
+                <label for="text-color">Màu chữ:</label>
+                <input type="color" id="text-color" name="text-color" value="#4b3832" />
+            </div>
 
-.hero-content {
-    max-width: 600px;
-}
+            <div class="design-section">
+                <label for="shirt-color">Chọn màu áo (click vào áo để thay đổi sau):</label>
+                <input type="color" id="shirt-color" name="shirt-color" value="#ffffff" />
+            </div>
 
-.hero-content span {
-    font-size: 14px;
-    letter-spacing: 4px;
-}
+            <div class="design-section">
+                <label>Thêm hình ảnh:</label>
+                <input type="file" id="image-upload" accept="image/*" />
+                <small>Bạn có thể chọn ảnh để thêm lên áo (chức năng đơn giản).</small>
+            </div>
 
-.hero h1 {
-    font-size: clamp(45px, 7vw, 82px);
-    line-height: 1;
-    margin: 20px 0;
-    font-weight: 800;
-}
+            <div class="design-section">
+                <label for="size-select">Chọn size:</label>
+                <select id="size-select" name="size-select">
+                    <option value="S">Size S</option>
+                    <option value="M" selected>Size M</option>
+                    <option value="L">Size L</option>
+                    <option value="XL">Size XL</option>
+                </select>
+            </div>
 
-.hero p {
-    font-size: 17px;
-    margin-bottom: 30px;
-    line-height: 1.7;
-}
+            <div>
+                <h3>Preview Áo</h3>
+                <div class="preview-shirt" id="preview-shirt">
+                    <div class="shirt-part shirt-body"></div>
+                    <div id="preview-text" style="position:absolute; top: 130px; width: 100%; text-align:center; font-size: 20px; color: #4b3832; font-family: Arial;">Nội dung chữ</div>
+                    <img id="preview-image" src="" alt="" style="position:absolute; top: 60px; left: 60px; max-width: 130px; max-height: 130px; display:none; pointer-events:none;" />
+                </div>
+            </div>
 
-.btn {
-    display: inline-block;
-    background: white;
-    color: #222;
-    padding: 15px 30px;
-    font-size: 13px;
-    font-weight: bold;
-    transition: .3s;
-    border: none;
-    cursor: pointer;
-}
+            <div style="margin-top: 20px;">
+                <label>Để lại số điện thoại để chúng tôi liên hệ tư vấn:</label>
+                <input type="tel" id="contact-phone" name="contact-phone" placeholder="Số điện thoại của bạn..." />
+                <br />
+                <button onclick="submitDesign()">Gửi thiết kế</button>
+            </div>
+        </section>
 
-.btn:hover {
-    background: #222;
-    color: white;
-}
+        <!-- Trang bộ sưu tập mẫu -->
+        <section id="collection">
+            <h2>Bộ Sưu Tập Mẫu Có Sẵn</h2>
+            <div class="collection-grid">
+                <div class="item-card">
+                    <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80" alt="Áo Thun Tay Dài" />
+                    <h3>Áo Thun Tay Dài</h3>
+                    <button onclick="showPage('design')">Thiết Kế Lại</button>
+                </div>
+                <div class="item-card">
+                    <img src="https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=400&q=80" alt="Áo Thun" />
+                    <h3>Áo Thun</h3>
+                    <button onclick="showPage('design')">Thiết Kế Lại</button>
+                </div>
+                <div class="item-card">
+                    <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=400&q=80" alt="Hoodie" />
+                    <h3>Hoodie</h3>
+                    <button onclick="showPage('design')">Thiết Kế Lại</button>
+                </div>
+            </div>
+        </section>
 
-/* ================= SECTION ================= */
+        <!-- Trang đăng nhập / liên hệ -->
+        <section id="login">
+            <h2>Đăng Nhập / Liên Hệ</h2>
+            <form onsubmit="event.preventDefault(); alert('Chức năng này hiện đang phát triển.');">
+                <label for="phone-login">Để lại số điện thoại để được tư vấn:</label>
+                <input type="tel" id="phone-login" name="phone-login" placeholder="Số điện thoại của bạn..." required />
+                <input type="submit" value="Gửi" />
+            </form>
 
-section {
-    padding: 80px 7%;
-}
+            <p style="margin-top:20px;">
+                Hoặc đăng nhập với tài khoản:<br />
+                <small>(Chức năng đăng nhập sẽ cập nhật sau)</small>
+            </p>
+        </section>
+    </main>
 
-.section-title {
-    text-align: center;
-    margin-bottom: 45px;
-}
+    <footer>
+        <p><strong>WEARU.STUDIO</strong> - Điện thoại: 0908048037 | Email: wearu.studio@gmail.com | Địa chỉ: Phường Bình Phú, TP. Hồ Chí Minh | Giờ mở cửa: 9:00 a.m - 10:00 p.m</p>
+    </footer>
 
-.section-title span {
-    color: #9b6b43;
-    font-size: 13px;
-    letter-spacing: 3px;
-    font-weight: bold;
-}
+    <script>
+        function showPage(pageId) {
+            const pages = ['home', 'design', 'collection', 'login'];
+            pages.forEach(page => {
+                document.getElementById(page).style.display = (page === pageId) ? 'block' : 'none';
+            });
+        }
 
-.section-title h2 {
-    font-size: 36px;
-    margin-top: 10px;
-}
+        // Các sự kiện cập nhật preview thiết kế
+        const shirtBody = document.querySelector('.shirt-body');
+        const previewShirt = document.getElementById('preview-shirt');
+        const textInput = document.getElementById('text-input');
+        const textColor = document.getElementById('text-color');
+        const previewText = document.getElementById('preview-text');
+        const shirtColor = document.getElementById('shirt-color');
+        const previewImage = document.getElementById('preview-image');
+        const fontSelect = document.getElementById('font-select');
 
-/* =====================================================
-   CUSTOM T-SHIRT DESIGNER - PHIÊN BẢN LỚN
-===================================================== */
+        // Cập nhật chữ trên áo
+        textInput.addEventListener('input', () => {
+            previewText.textContent = textInput.value || 'Nội dung chữ';
+        });
+        textColor.addEventListener('input', () => {
+            previewText.style.color = textColor.value;
+        });
+        fontSelect.addEventListener('change', () => {
+            previewText.style.fontFamily = fontSelect.value;
+        });
 
-.customizer {
-    background: #f7f7f5;
+        // Cập nhật màu áo (phần thân áo)
+        shirtColor.addEventListener('input', () => {
+            shirtBody.style.backgroundColor = shirtColor.value;
+        });
+        
+        // Cho phép click đổi màu áo từng phần (đơn giản là phần thân)
+        shirtBody.addEventListener('click', () => {
+            // Đổi màu áo theo trình tự (ví dụ qua một số màu mẫu)
+            const colors = ['#ffffff', '#d7ccc8', '#7b5e57', '#4b3832', '#a1887f'];
+            let current = colors.indexOf(shirtBody.style.backgroundColor) ;
+            if (current === -1) current=0;
+            let next = (current +1) % colors.length;
+            shirtBody.style.backgroundColor = colors[next];
+            shirtColor.value = colors[next];
+        });
 
-    /* TĂNG KHOẢNG CÁCH */
-    padding: 110px 4%;
-}
+        // Xử lý upload ảnh
+        document.getElementById('image-upload').addEventListener('change', (event) =>{
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '';
+                previewImage.style.display = 'none';
+            }
+        });
 
-.customizer-header {
-    text-align: center;
-    margin-bottom: 55px;
-}
-
-.customizer-header span {
-    color: #9b6b43;
-    font-size: 15px;
-    letter-spacing: 3px;
-    font-weight: bold;
-}
-
-.customizer-header h2 {
-    font-size: 46px;
-    margin: 15px 0;
-}
-
-.custom
-```
+        // Hàm gửi thông tin thiết kế (đơn giản chỉ báo khi nhấn gửi)
+        function submitDesign() {
+            const phone = document.getElementById('contact-phone').value.trim();
+            if(!phone) {
+                alert('Vui lòng nhập số điện thoại để chúng tôi liên hệ.');
+                return;
+            }
+            alert('Cảm ơn bạn đã gửi thiết kế! Chúng tôi sẽ liên hệ lại qua số ' + phone);
+            // Ở đây bạn có thể thêm gửi dữ liệu về server hoặc email
+        }
+    </script>
+</body>
+</html>
