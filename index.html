@@ -1,385 +1,344 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>WEARU.STUDIO - Thiết kế thời trang cá nhân</title>
-    <style>
-        /* Reset & cơ bản */
-        * {
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0; padding: 0;
-            background-color: #fff;
-            color: #4b3832; /* màu nâu đậm */
-        }
-        a {
-            text-decoration: none;
-            color: #4b3832;
-        }
-        a:hover {
-            color: #7b5e57;
-        }
+<!-- JAVASCRIPT APP LOGIC -->
+<script>
+    // --- 1. PRODUCT DATA ---
+    const FREESHIP_MIN = 299000;
+    const SHIP_FEE = 30000;
+    const CUSTOM_PRICE = 199000;
 
-        /* Header */
-        header {
-            background-color: #4b3832;
-            color: #fff;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        nav a {
-            margin-left: 20px;
-            font-weight: bold;
-            font-size: 16px;
-            color: #fff;
-        }
-        nav a:hover {
-            color: #d7ccc8;
-        }
+    const productsData = [
+        { id: 'p1', name: 'Áo Tay Dài Stay True Longsleeve', category: 'tshirt', price: 199000, rating: 5.0, image: 'áo tay dài.png',
+          desc: 'Áo thun tay dài Cotton 280GSM màu đen cao cấp, họa tiết trăng khuyết thêu ngực & chữ STAY TRUE tay áo.' },
+        { id: 'p2', name: 'Áo Hoodie Studio Essential Heavyweight', category: 'hoodie', price: 299000, rating: 4.9,
+          image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
+          desc: 'Nỉ chân cua cao cấp, mũ đúp 2 lớp giữ form chuẩn streetwear. Thích hợp cho thời tiết thu đông.' },
+        { id: 'p3', name: 'Áo Polo Sợi Tre Bamboo Luxury', category: 'polo', price: 249000, rating: 4.8,
+          image: 'https://images.unsplash.com/photo-1625910513413-730303e913a8?auto=format&fit=crop&w=800&q=80',
+          desc: 'Chất liệu vải tre tự nhiên kháng khuẩn, mềm mịn thoáng mát. Thiết kế cổ bệt lịch sự.' },
+        { id: 'p4', name: 'Áo Phông Graphic Custom Studio', category: 'tshirt', price: 145000, rating: 4.7,
+          image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
+          desc: 'Hình in kỹ thuật số DTG sắc nét bền màu. Dáng Unisex vừa vặn cho cả nam và nữ.' },
+        { id: 'p5', name: 'Sweatshirt Premium Wearu Monogram', category: 'hoodie', price: 279000, rating: 4.9,
+          image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80',
+          desc: 'Áo nỉ chui đầu phong cách tối giản sang trọng, dễ phối đồ kết hợp jeans hoặc quần tây.' },
+        { id: 'p6', name: 'Áo Polo Casual Black Edition', category: 'polo', price: 219000, rating: 4.8,
+          image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80',
+          desc: 'Gam màu đen huyền bí lịch lãm. Vải pique thoáng khí thấm hút mồ hôi tối đa.' }
+    ];
 
-        /* Footer */
-        footer {
-            background-color: #4b3832;
-            color: #fff;
-            text-align: center;
-            padding: 15px 10px;
-            margin-top: 40px;
-            font-size: 14px;
-        }
+    // --- 2. GLOBAL STATE ---
+    let cart = [];
+    let customizerState = { color: '#ffffff', text: '', font: 'Plus Jakarta Sans', textColor: '#000000', size: 'M', view: 'front', imageSrc: null };
 
-        /* Container */
-        .container {
-            max-width: 980px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
+    // --- 3. CLIENT-SIDE HASH ROUTER ---
+    const routes = ['home', 'about', 'customizer', 'collection', 'contact'];
 
-        /* Trang chủ */
-        #home {
-            display: block;
-        }
-        #design, #collection, #login {
-            display: none;
-        }
-        .intro {
-            font-size: 18px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
-        .intro img {
-            max-width: 100%;
-            border-radius: 8px;
-        }
+    function handleRouting() {
+        let hash = window.location.hash.replace('#', '');
+        if (!routes.includes(hash)) hash = 'home';
+        document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
+        const targetView = document.getElementById(`view-${hash}`);
+        if (targetView) targetView.classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(link => {
+            const route = link.getAttribute('data-route');
+            link.className = route === hash
+                ? 'nav-link px-3 py-2 text-sm font-semibold tracking-wider transition-colors duration-200 uppercase relative text-brand-gold border-b-2 border-brand-gold'
+                : 'nav-link px-3 py-2 text-sm font-semibold tracking-wider transition-colors duration-200 uppercase relative text-[#6F5A4C] hover:text-brand-gold';
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-        /* Button */
-        button, input[type="submit"] {
-            background-color: #4b3832;
-            border: none;
-            color: white;
-            padding: 10px 15px;
-            font-size: 16px;
-            border-radius: 4px;
-            cursor: pointer;
+    window.addEventListener('hashchange', handleRouting);
+    window.addEventListener('DOMContentLoaded', () => { handleRouting(); renderBestSellers(); filterProducts(); updateCartUI(); });
+
+    function navigateTo(route, categoryFilter = null) {
+        window.location.hash = `#${route}`;
+        if (categoryFilter && route === 'collection') {
+            setTimeout(() => {
+                const radio = document.querySelector(`input[name="catFilter"][value="${categoryFilter}"]`);
+                if (radio) { radio.checked = true; filterProducts(); }
+            }, 100);
         }
-        button:hover, input[type="submit"]:hover {
-            background-color: #7b5e57;
+    }
+
+    // --- 4. SHIRT CUSTOMIZER ENGINE ---
+    function changeShirtColor(colorHex) {
+        customizerState.color = colorHex;
+        document.getElementById('shirtBody').setAttribute('fill', colorHex);
+    }
+
+    function switchShirtView(view) {
+        customizerState.view = view;
+        const frontBtn = document.getElementById('viewFrontBtn');
+        const backBtn = document.getElementById('viewBackBtn');
+        const frontText = document.getElementById('frontTextLayer');
+        const backText = document.getElementById('backTextLayer');
+        const on = 'px-4 py-1.5 text-xs font-semibold rounded-lg bg-brand-gold text-black transition-all';
+        const off = 'px-4 py-1.5 text-xs font-semibold rounded-lg text-[#6F5A4C] hover:text-[#3B2A22] transition-all';
+        if (view === 'front') {
+            frontBtn.className = on; backBtn.className = off;
+            frontText.classList.remove('hidden'); backText.classList.add('hidden');
+        } else {
+            backBtn.className = on; frontBtn.className = off;
+            backText.classList.remove('hidden'); frontText.classList.add('hidden');
         }
+    }
 
-        /* Form input */
-        input[type="text"], input[type="tel"], select {
-            padding: 8px 10px;
-            margin: 5px 0 15px;
-            width: 100%;
-            max-width: 300px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+    function updateCustomText() {
+        const inputVal = document.getElementById('customTextInput').value;
+        const fontVal = document.getElementById('fontSelect').value;
+        const colorVal = document.getElementById('textColorInput').value;
+        customizerState.text = inputVal;
+        customizerState.font = fontVal;
+        customizerState.textColor = colorVal;
+        const textDisplay = document.getElementById('customTextDisplay');
+        textDisplay.innerText = inputVal;
+        textDisplay.style.fontFamily = fontVal;
+        textDisplay.style.color = colorVal;
+    }
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                customizerState.imageSrc = evt.target.result;
+                document.getElementById('customImageDisplay').src = evt.target.result;
+                document.getElementById('customImageLayer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
         }
+    }
 
-        label {
-            font-weight: bold;
-            display: block;
-        }
+    function selectCustomSize(size) {
+        customizerState.size = size;
+        document.querySelectorAll('#customSizePicker .size-btn').forEach(btn => {
+            btn.className = btn.innerText === size
+                ? 'size-btn py-2 text-xs font-bold border border-brand-gold bg-brand-gold/10 text-brand-gold rounded-xl'
+                : 'size-btn py-2 text-xs font-bold border border-[#8B5E3C]/25 rounded-xl text-[#6F5A4C] hover:border-brand-gold';
+        });
+    }
 
-        /* Design page layout */
-        .design-section {
-            margin-bottom: 30px;
-        }
-        .design-section label {
-            margin-bottom: 6px;
-            display: inline-block;
-        }
-        .preview-shirt {
-            width: 250px;
-            height: 300px;
-            background-color: #d7ccc8;
-            margin-top: 10px;
-            border-radius: 10px;
-            position: relative;
-        }
-        .preview-shirt .shirt-part {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        /* Simplified shirt parts for color selection */
-        .shirt-body { top: 0; left: 0; background-color: #fff; }
+    function resetCustomizer() {
+        changeShirtColor('#ffffff');
+        document.getElementById('customTextInput').value = '';
+        document.getElementById('customImageLayer').classList.add('hidden');
+        updateCustomText();
+    }
 
-        /* Collection page */
-        .collection-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        .item-card {
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            width: 220px;
-            padding: 10px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgb(75 56 50 / 0.3);
-        }
-        .item-card img {
-            max-width: 100%;
-            border-radius: 6px;
-        }
-        .item-card h3 {
-            margin: 10px 0 6px;
-            color: #4b3832;
-        }
-        .item-card button {
-            width: 100%;
-        }
+    function addCustomShirtToCart() {
+        addToCart({
+            id: 'custom-' + Date.now(),
+            name: `Áo Tự Thiết Kế (${customizerState.size})`,
+            price: CUSTOM_PRICE,
+            size: customizerState.size,
+            image: 'áo tay dài.png',
+            isCustom: true,
+            details: customizerState.text ? `Chữ: "${customizerState.text}"` : 'Mẫu thiết kế riêng',
+            quantity: 1
+        });
+        openCartDrawer();
+    }
 
-        /* Responsive */
-        @media(max-width: 600px) {
-            .collection-grid {
-                flex-direction: column;
-                align-items: center;
-            }
-        }
+    // --- 5. PRODUCTS & COLLECTION ---
+    function formatVND(amount) { return amount.toLocaleString('vi-VN') + 'đ'; }
 
-    </style>
-</head>
-<body>
-    <header>
-        <h1 onclick="showPage('home')">WEARU.STUDIO</h1>
-        <nav>
-            <a href="#" onclick="showPage('home')">Trang Chủ</a>
-            <a href="#" onclick="showPage('design')">Tự Thiết Kế</a>
-            <a href="#" onclick="showPage('collection')">Bộ Sưu Tập</a>
-            <a href="#" onclick="showPage('login')">Đăng Nhập / Liên Hệ</a>
-        </nav>
-    </header>
-
-    <main class="container">
-        <!-- Trang chủ -->
-        <section id="home">
-            <h2>Chào mừng đến với WEARU.STUDIO</h2>
-            <p class="intro">Chúng tôi chuyên cung cấp dịch vụ thiết kế quần áo cá nhân hóa theo phong cách riêng của bạn. Khách hàng có thể tự thiết kế áo với lựa chọn font chữ, màu sắc, thêm hình ảnh... Tạo ra áo thun, hoodie, áo tay dài độc đáo chỉ dành cho bạn!</p>
-            <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=80" alt="WEARU.STUDIO - Thời trang cá nhân" />
-            <h3>Thông tin liên hệ</h3>
-            <ul>
-                <li><strong>Điện thoại:</strong> 0908048037</li>
-                <li><strong>Email:</strong> wearu.studio@gmail.com</li>
-                <li><strong>Địa chỉ:</strong> Phường Bình Phú, Thành Phố Hồ Chí Minh</li>
-                <li><strong>Thời gian mở cửa:</strong> 9:00 a.m - 10:00 p.m</li>
-            </ul>
-        </section>
-
-        <!-- Trang tự thiết kế -->
-        <section id="design">
-            <h2>Tự Thiết Kế Áo Của Bạn</h2>
-
-            <div class="design-section">
-                <label for="shirt-type">Chọn loại áo:</label>
-                <select id="shirt-type" name="shirt-type">
-                    <option value="tshirt">Áo Thun</option>
-                    <option value="longsleeve">Áo Thun Tay Dài</option>
-                    <option value="hoodie">Hoodie</option>
-                </select>
-            </div>
-
-            <div class="design-section">
-                <label for="font-select">Chọn font chữ:</label>
-                <select id="font-select" name="font-select">
-                    <option style="font-family: Arial;">Arial</option>
-                    <option style="font-family: 'Times New Roman';">Times New Roman</option>
-                    <option style="font-family: 'Courier New';">Courier New</option>
-                    <option style="font-family: Verdana;">Verdana</option>
-                </select>
-            </div>
-
-            <div class="design-section">
-                <label for="text-input">Nội dung chữ trên áo:</label>
-                <input type="text" id="text-input" name="text-input" placeholder="Nhập nội dung..." />
-                <label for="text-color">Màu chữ:</label>
-                <input type="color" id="text-color" name="text-color" value="#4b3832" />
-            </div>
-
-            <div class="design-section">
-                <label for="shirt-color">Chọn màu áo (click vào áo để thay đổi sau):</label>
-                <input type="color" id="shirt-color" name="shirt-color" value="#ffffff" />
-            </div>
-
-            <div class="design-section">
-                <label>Thêm hình ảnh:</label>
-                <input type="file" id="image-upload" accept="image/*" />
-                <small>Bạn có thể chọn ảnh để thêm lên áo (chức năng đơn giản).</small>
-            </div>
-
-            <div class="design-section">
-                <label for="size-select">Chọn size:</label>
-                <select id="size-select" name="size-select">
-                    <option value="S">Size S</option>
-                    <option value="M" selected>Size M</option>
-                    <option value="L">Size L</option>
-                    <option value="XL">Size XL</option>
-                </select>
-            </div>
-
-            <div>
-                <h3>Preview Áo</h3>
-                <div class="preview-shirt" id="preview-shirt">
-                    <div class="shirt-part shirt-body"></div>
-                    <div id="preview-text" style="position:absolute; top: 130px; width: 100%; text-align:center; font-size: 20px; color: #4b3832; font-family: Arial;">Nội dung chữ</div>
-                    <img id="preview-image" src="" alt="" style="position:absolute; top: 60px; left: 60px; max-width: 130px; max-height: 130px; display:none; pointer-events:none;" />
+    function renderBestSellers() {
+        const container = document.getElementById('homeBestSellers');
+        if (!container) return;
+        container.innerHTML = productsData.slice(0, 4).map(p => `
+            <div class="bg-brand-card border border-[#8B5E3C]/15 rounded-2xl overflow-hidden group hover:border-brand-gold/50 transition-all duration-300 flex flex-col justify-between">
+                <div class="relative overflow-hidden h-64 bg-[#3B2A22]/8">
+                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <button onclick="openProductModal('${p.id}')" class="absolute bottom-3 right-3 p-3 bg-[#3B2A22]/50 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl backdrop-blur-md transition-colors text-xs font-bold">Xem Nhanh</button>
                 </div>
-            </div>
-
-            <div style="margin-top: 20px;">
-                <label>Để lại số điện thoại để chúng tôi liên hệ tư vấn:</label>
-                <input type="tel" id="contact-phone" name="contact-phone" placeholder="Số điện thoại của bạn..." />
-                <br />
-                <button onclick="submitDesign()">Gửi thiết kế</button>
-            </div>
-        </section>
-
-        <!-- Trang bộ sưu tập mẫu -->
-        <section id="collection">
-            <h2>Bộ Sưu Tập Mẫu Có Sẵn</h2>
-            <div class="collection-grid">
-                <div class="item-card">
-                    <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=400&q=80" alt="Áo Thun Tay Dài" />
-                    <h3>Áo Thun Tay Dài</h3>
-                    <button onclick="showPage('design')">Thiết Kế Lại</button>
+                <div class="p-5 flex flex-col flex-grow justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
+                            <span class="text-xs text-yellow-400 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> ${p.rating}</span>
+                        </div>
+                        <h3 class="font-bold text-[#3B2A22] text-base line-clamp-1 mb-2">${p.name}</h3>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-[#8B5E3C]/10">
+                        <span class="text-brand-gold font-bold text-lg">${formatVND(p.price)}</span>
+                        <button onclick="quickAddToCart('${p.id}')" class="p-2.5 bg-white/10 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl transition-colors"><i class="fa-solid fa-cart-plus"></i></button>
+                    </div>
                 </div>
-                <div class="item-card">
-                    <img src="https://images.unsplash.com/photo-1521334884684-d80222895322?auto=format&fit=crop&w=400&q=80" alt="Áo Thun" />
-                    <h3>Áo Thun</h3>
-                    <button onclick="showPage('design')">Thiết Kế Lại</button>
-                </div>
-                <div class="item-card">
-                    <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=400&q=80" alt="Hoodie" />
-                    <h3>Hoodie</h3>
-                    <button onclick="showPage('design')">Thiết Kế Lại</button>
-                </div>
-            </div>
-        </section>
+            </div>`).join('');
+    }
 
-        <!-- Trang đăng nhập / liên hệ -->
-        <section id="login">
-            <h2>Đăng Nhập / Liên Hệ</h2>
-            <form onsubmit="event.preventDefault(); alert('Chức năng này hiện đang phát triển.');">
-                <label for="phone-login">Để lại số điện thoại để được tư vấn:</label>
-                <input type="tel" id="phone-login" name="phone-login" placeholder="Số điện thoại của bạn..." required />
-                <input type="submit" value="Gửi" />
-            </form>
+    function filterProducts() {
+        const cat = document.querySelector('input[name="catFilter"]:checked')?.value || 'all';
+        const maxPrice = parseInt(document.getElementById('priceRange')?.value || 299000);
+        const sort = document.getElementById('sortSelect')?.value || 'featured';
 
-            <p style="margin-top:20px;">
-                Hoặc đăng nhập với tài khoản:<br />
-                <small>(Chức năng đăng nhập sẽ cập nhật sau)</small>
-            </p>
-        </section>
-    </main>
+        let filtered = productsData.filter(p => (cat === 'all' || p.category === cat) && p.price <= maxPrice);
+        if (sort === 'low-high') filtered.sort((a, b) => a.price - b.price);
+        else if (sort === 'high-low') filtered.sort((a, b) => b.price - a.price);
 
-    <footer>
-        <p><strong>WEARU.STUDIO</strong> - Điện thoại: 0908048037 | Email: wearu.studio@gmail.com | Địa chỉ: Phường Bình Phú, TP. Hồ Chí Minh | Giờ mở cửa: 9:00 a.m - 10:00 p.m</p>
-    </footer>
+        const grid = document.getElementById('productGrid');
+        const countText = document.getElementById('productCount');
+        if (countText) countText.innerText = `Hiển thị ${filtered.length} sản phẩm`;
+        if (!grid) return;
 
-    <script>
-        function showPage(pageId) {
-            const pages = ['home', 'design', 'collection', 'login'];
-            pages.forEach(page => {
-                document.getElementById(page).style.display = (page === pageId) ? 'block' : 'none';
-            });
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="col-span-full text-center py-12 text-[#806B5D]">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</div>`;
+            return;
         }
+        grid.innerHTML = filtered.map(p => `
+            <div class="bg-brand-card border border-[#8B5E3C]/15 rounded-2xl overflow-hidden group hover:border-brand-gold/50 transition-all duration-300 flex flex-col justify-between">
+                <div class="relative overflow-hidden h-72 bg-[#3B2A22]/8">
+                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    <button onclick="openProductModal('${p.id}')" class="absolute bottom-3 right-3 p-3 bg-[#3B2A22]/50 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl backdrop-blur-md transition-colors text-xs font-bold">Xem Nhanh</button>
+                </div>
+                <div class="p-5 flex flex-col flex-grow justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
+                            <span class="text-xs text-yellow-400 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> ${p.rating}</span>
+                        </div>
+                        <h3 class="font-bold text-[#3B2A22] text-base line-clamp-1 mb-2">${p.name}</h3>
+                        <p class="text-xs text-[#806B5D] line-clamp-2 mb-4 font-light">${p.desc}</p>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-[#8B5E3C]/10">
+                        <span class="text-brand-gold font-bold text-lg">${formatVND(p.price)}</span>
+                        <button onclick="quickAddToCart('${p.id}')" class="px-4 py-2 bg-brand-gold text-black font-bold rounded-xl text-xs hover:bg-[#6B3F2A] transition-colors flex items-center gap-1.5"><i class="fa-solid fa-cart-plus"></i> Thêm</button>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
 
-        // Các sự kiện cập nhật preview thiết kế
-        const shirtBody = document.querySelector('.shirt-body');
-        const previewShirt = document.getElementById('preview-shirt');
-        const textInput = document.getElementById('text-input');
-        const textColor = document.getElementById('text-color');
-        const previewText = document.getElementById('preview-text');
-        const shirtColor = document.getElementById('shirt-color');
-        const previewImage = document.getElementById('preview-image');
-        const fontSelect = document.getElementById('font-select');
+    function updatePriceFilter(val) {
+        document.getElementById('priceValue').innerText = `Dưới ${formatVND(parseInt(val))}`;
+        filterProducts();
+    }
 
-        // Cập nhật chữ trên áo
-        textInput.addEventListener('input', () => {
-            previewText.textContent = textInput.value || 'Nội dung chữ';
-        });
-        textColor.addEventListener('input', () => {
-            previewText.style.color = textColor.value;
-        });
-        fontSelect.addEventListener('change', () => {
-            previewText.style.fontFamily = fontSelect.value;
-        });
+    // --- 6. SHOPPING CART ---
+    function calcShipping(subtotal) { return (subtotal === 0 || subtotal >= FREESHIP_MIN) ? 0 : SHIP_FEE; }
 
-        // Cập nhật màu áo (phần thân áo)
-        shirtColor.addEventListener('input', () => {
-            shirtBody.style.backgroundColor = shirtColor.value;
-        });
-        
-        // Cho phép click đổi màu áo từng phần (đơn giản là phần thân)
-        shirtBody.addEventListener('click', () => {
-            // Đổi màu áo theo trình tự (ví dụ qua một số màu mẫu)
-            const colors = ['#ffffff', '#d7ccc8', '#7b5e57', '#4b3832', '#a1887f'];
-            let current = colors.indexOf(shirtBody.style.backgroundColor) ;
-            if (current === -1) current=0;
-            let next = (current +1) % colors.length;
-            shirtBody.style.backgroundColor = colors[next];
-            shirtColor.value = colors[next];
-        });
+    function quickAddToCart(productId) {
+        const p = productsData.find(x => x.id === productId);
+        if (!p) return;
+        addToCart({ id: p.id + '-M', productId: p.id, name: p.name, price: p.price, size: 'M', image: p.image, quantity: 1 });
+        openCartDrawer();
+    }
 
-        // Xử lý upload ảnh
-        document.getElementById('image-upload').addEventListener('change', (event) =>{
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e){
-                    previewImage.src = e.target.result;
-                    previewImage.style.display = 'block';
-                }
-                reader.readAsDataURL(file);
-            } else {
-                previewImage.src = '';
-                previewImage.style.display = 'none';
-            }
-        });
+    function addToCart(item) {
+        const i = cart.findIndex(x => x.id === item.id);
+        if (i > -1) cart[i].quantity += 1; else cart.push(item);
+        updateCartUI();
+    }
 
-        // Hàm gửi thông tin thiết kế (đơn giản chỉ báo khi nhấn gửi)
-        function submitDesign() {
-            const phone = document.getElementById('contact-phone').value.trim();
-            if(!phone) {
-                alert('Vui lòng nhập số điện thoại để chúng tôi liên hệ.');
-                return;
-            }
-            alert('Cảm ơn bạn đã gửi thiết kế! Chúng tôi sẽ liên hệ lại qua số ' + phone);
-            // Ở đây bạn có thể thêm gửi dữ liệu về server hoặc email
+    function updateQuantity(itemId, delta) {
+        const idx = cart.findIndex(i => i.id === itemId);
+        if (idx > -1) {
+            cart[idx].quantity += delta;
+            if (cart[idx].quantity <= 0) cart.splice(idx, 1);
         }
-    </script>
-</body>
-</html>
+        updateCartUI();
+    }
+
+    function removeFromCart(itemId) {
+        cart = cart.filter(i => i.id !== itemId);
+        updateCartUI();
+    }
+
+    function updateCartUI() {
+        const badge = document.getElementById('cartBadge');
+        const list = document.getElementById('cartItemList');
+        const totalCount = cart.reduce((s, i) => s + i.quantity, 0);
+        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const ship = calcShipping(subtotal);
+
+        if (badge) badge.innerText = totalCount;
+        const sub = document.getElementById('cartSubtotal'); if (sub) sub.innerText = formatVND(subtotal);
+        const shipEl = document.getElementById('cartShipping'); if (shipEl) shipEl.innerText = ship === 0 ? 'Miễn phí' : formatVND(ship);
+        const tot = document.getElementById('cartTotal'); if (tot) tot.innerText = formatVND(subtotal + ship);
+
+        if (!list) return;
+        if (cart.length === 0) {
+            list.innerHTML = `<div class="text-center py-12 text-[#927C6D]"><i class="fa-solid fa-bag-shopping text-4xl mb-3 text-gray-600 block"></i>Giỏ hàng của bạn đang trống</div>`;
+            return;
+        }
+        list.innerHTML = cart.map(item => `
+            <div class="flex gap-4 p-3 bg-[#3B2A22]/8 border border-[#8B5E3C]/10 rounded-xl items-center">
+                <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg border border-[#8B5E3C]/15 shrink-0">
+                <div class="flex-grow">
+                    <h4 class="text-xs font-bold text-[#3B2A22] line-clamp-1">${item.name}</h4>
+                    <div class="text-[10px] text-[#806B5D] mt-0.5">Size: <span class="text-brand-gold font-bold">${item.size}</span></div>
+                    ${item.details ? `<div class="text-[10px] text-brand-gold">${item.details}</div>` : ''}
+                    <div class="text-xs font-bold text-brand-gold mt-1">${formatVND(item.price)}</div>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <button onclick="removeFromCart('${item.id}')" class="text-[#927C6D] hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                    <div class="flex items-center gap-2 bg-brand-card px-2 py-1 rounded-lg border border-[#8B5E3C]/15 text-xs">
+                        <button onclick="updateQuantity('${item.id}', -1)" class="text-[#806B5D] hover:text-[#3B2A22]">-</button>
+                        <span class="font-bold text-[#3B2A22] min-w-[12px] text-center">${item.quantity}</span>
+                        <button onclick="updateQuantity('${item.id}', 1)" class="text-[#806B5D] hover:text-[#3B2A22]">+</button>
+                    </div>
+                </div>
+            </div>`).join('');
+    }
+
+    function openCartDrawer() {
+        document.getElementById('cartDrawerBackdrop').classList.remove('opacity-0', 'pointer-events-none');
+        document.getElementById('cartDrawer').classList.remove('translate-x-full');
+    }
+    function closeCartDrawer() {
+        document.getElementById('cartDrawerBackdrop').classList.add('opacity-0', 'pointer-events-none');
+        document.getElementById('cartDrawer').classList.add('translate-x-full');
+    }
+
+    // --- 7. MODALS ---
+    function openProductModal(productId) {
+        const p = productsData.find(x => x.id === productId);
+        if (!p) return;
+        document.getElementById('productModalContent').innerHTML = `
+            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-[#806B5D] hover:text-[#3B2A22] p-2 z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                <div class="rounded-xl overflow-hidden h-72 bg-[#3B2A22]/8"><img src="${p.image}" class="w-full h-full object-cover"></div>
+                <div class="space-y-4">
+                    <span class="text-xs uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
+                    <h2 class="text-2xl font-bold text-[#3B2A22]">${p.name}</h2>
+                    <div class="text-yellow-400 text-xs flex items-center gap-1 font-semibold"><i class="fa-solid fa-star"></i> ${p.rating} (48 đánh giá)</div>
+                    <p class="text-xs text-[#6F5A4C] leading-relaxed font-light">${p.desc}</p>
+                    <div class="text-2xl font-bold text-brand-gold">${formatVND(p.price)}</div>
+                    <div class="pt-4 flex gap-3">
+                        <button onclick="quickAddToCart('${p.id}'); closeProductModal();" class="flex-grow py-3 bg-brand-gold text-black font-bold uppercase tracking-wider text-xs rounded-xl hover:bg-[#6B3F2A] transition-colors">Thêm Vào Giỏ Hàng</button>
+                    </div>
+                </div>
+            </div>`;
+        document.getElementById('productModal').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeProductModal() {
+        document.getElementById('productModal').classList.add('opacity-0', 'pointer-events-none');
+    }
+
+    function openCheckoutModal() {
+        if (cart.length === 0) { alert('Giỏ hàng của bạn đang trống!'); return; }
+        closeCartDrawer();
+        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        document.getElementById('checkoutTotal').innerText = formatVND(subtotal + calcShipping(subtotal));
+        document.getElementById('checkoutModal').classList.remove('opacity-0', 'pointer-events-none');
+    }
+    function closeCheckoutModal() {
+        document.getElementById('checkoutModal').classList.add('opacity-0', 'pointer-events-none');
+    }
+    function processCheckout(e) {
+        e.preventDefault();
+        alert('🎉 Đặt hàng thành công! Wearu Studio sẽ liên hệ xác nhận đơn hàng sớm nhất.');
+        cart = [];
+        updateCartUI();
+        closeCheckoutModal();
+    }
+    function handleContactSubmit(e) {
+        e.preventDefault();
+        alert('📩 Yêu cầu hỗ trợ của bạn đã được gửi. Wearu sẽ phản hồi trong 2 giờ làm việc!');
+        e.target.reset();
+    }
+
+    // --- 8. HEADER EVENTS ---
+    function toggleNotifications() { document.getElementById('notifMenu').classList.toggle('hidden'); }
+    function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+    function closeMobileMenu() { document.getElementById('mobileMenu').classList.add('hidden'); }
+</script>
