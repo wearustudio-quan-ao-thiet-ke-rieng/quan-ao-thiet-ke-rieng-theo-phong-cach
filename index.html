@@ -1,344 +1,643 @@
-<!-- JAVASCRIPT APP LOGIC -->
-<script>
-    // --- 1. PRODUCT DATA ---
-    const FREESHIP_MIN = 299000;
-    const SHIP_FEE = 30000;
-    const CUSTOM_PRICE = 199000;
+<!-- Custom Text Layer (Back) -->
+                            <div id="backTextLayer" class="absolute cursor-move select-none flex items-center justify-center p-2 hidden" style="top: 35%; left: 32%;">
+                                <span id="backTextDisplay" class="font-sans text-xl font-bold text-black transition-all"></span>
+                            </div>
 
-    const productsData = [
-        { id: 'p1', name: 'Áo Tay Dài Stay True Longsleeve', category: 'tshirt', price: 199000, rating: 5.0, image: 'áo tay dài.png',
-          desc: 'Áo thun tay dài Cotton 280GSM màu đen cao cấp, họa tiết trăng khuyết thêu ngực & chữ STAY TRUE tay áo.' },
-        { id: 'p2', name: 'Áo Hoodie Studio Essential Heavyweight', category: 'hoodie', price: 299000, rating: 4.9,
-          image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80',
-          desc: 'Nỉ chân cua cao cấp, mũ đúp 2 lớp giữ form chuẩn streetwear. Thích hợp cho thời tiết thu đông.' },
-        { id: 'p3', name: 'Áo Polo Sợi Tre Bamboo Luxury', category: 'polo', price: 249000, rating: 4.8,
-          image: 'https://images.unsplash.com/photo-1625910513413-730303e913a8?auto=format&fit=crop&w=800&q=80',
-          desc: 'Chất liệu vải tre tự nhiên kháng khuẩn, mềm mịn thoáng mát. Thiết kế cổ bệt lịch sự.' },
-        { id: 'p4', name: 'Áo Phông Graphic Custom Studio', category: 'tshirt', price: 145000, rating: 4.7,
-          image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=800&q=80',
-          desc: 'Hình in kỹ thuật số DTG sắc nét bền màu. Dáng Unisex vừa vặn cho cả nam và nữ.' },
-        { id: 'p5', name: 'Sweatshirt Premium Wearu Monogram', category: 'hoodie', price: 279000, rating: 4.9,
-          image: 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80',
-          desc: 'Áo nỉ chui đầu phong cách tối giản sang trọng, dễ phối đồ kết hợp jeans hoặc quần tây.' },
-        { id: 'p6', name: 'Áo Polo Casual Black Edition', category: 'polo', price: 219000, rating: 4.8,
-          image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80',
-          desc: 'Gam màu đen huyền bí lịch lãm. Vải pique thoáng khí thấm hút mồ hôi tối đa.' }
-    ];
-
-    // --- 2. GLOBAL STATE ---
-    let cart = [];
-    let customizerState = { color: '#ffffff', text: '', font: 'Plus Jakarta Sans', textColor: '#000000', size: 'M', view: 'front', imageSrc: null };
-
-    // --- 3. CLIENT-SIDE HASH ROUTER ---
-    const routes = ['home', 'about', 'customizer', 'collection', 'contact'];
-
-    function handleRouting() {
-        let hash = window.location.hash.replace('#', '');
-        if (!routes.includes(hash)) hash = 'home';
-        document.querySelectorAll('.page-view').forEach(v => v.classList.remove('active'));
-        const targetView = document.getElementById(`view-${hash}`);
-        if (targetView) targetView.classList.add('active');
-        document.querySelectorAll('.nav-link').forEach(link => {
-            const route = link.getAttribute('data-route');
-            link.className = route === hash
-                ? 'nav-link px-3 py-2 text-sm font-semibold tracking-wider transition-colors duration-200 uppercase relative text-brand-gold border-b-2 border-brand-gold'
-                : 'nav-link px-3 py-2 text-sm font-semibold tracking-wider transition-colors duration-200 uppercase relative text-[#6F5A4C] hover:text-brand-gold';
-        });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    window.addEventListener('hashchange', handleRouting);
-    window.addEventListener('DOMContentLoaded', () => { handleRouting(); renderBestSellers(); filterProducts(); updateCartUI(); });
-
-    function navigateTo(route, categoryFilter = null) {
-        window.location.hash = `#${route}`;
-        if (categoryFilter && route === 'collection') {
-            setTimeout(() => {
-                const radio = document.querySelector(`input[name="catFilter"][value="${categoryFilter}"]`);
-                if (radio) { radio.checked = true; filterProducts(); }
-            }, 100);
-        }
-    }
-
-    // --- 4. SHIRT CUSTOMIZER ENGINE ---
-    function changeShirtColor(colorHex) {
-        customizerState.color = colorHex;
-        document.getElementById('shirtBody').setAttribute('fill', colorHex);
-    }
-
-    function switchShirtView(view) {
-        customizerState.view = view;
-        const frontBtn = document.getElementById('viewFrontBtn');
-        const backBtn = document.getElementById('viewBackBtn');
-        const frontText = document.getElementById('frontTextLayer');
-        const backText = document.getElementById('backTextLayer');
-        const on = 'px-4 py-1.5 text-xs font-semibold rounded-lg bg-brand-gold text-black transition-all';
-        const off = 'px-4 py-1.5 text-xs font-semibold rounded-lg text-[#6F5A4C] hover:text-[#3B2A22] transition-all';
-        if (view === 'front') {
-            frontBtn.className = on; backBtn.className = off;
-            frontText.classList.remove('hidden'); backText.classList.add('hidden');
-        } else {
-            backBtn.className = on; frontBtn.className = off;
-            backText.classList.remove('hidden'); frontText.classList.add('hidden');
-        }
-    }
-
-    function updateCustomText() {
-        const inputVal = document.getElementById('customTextInput').value;
-        const fontVal = document.getElementById('fontSelect').value;
-        const colorVal = document.getElementById('textColorInput').value;
-        customizerState.text = inputVal;
-        customizerState.font = fontVal;
-        customizerState.textColor = colorVal;
-        const textDisplay = document.getElementById('customTextDisplay');
-        textDisplay.innerText = inputVal;
-        textDisplay.style.fontFamily = fontVal;
-        textDisplay.style.color = colorVal;
-    }
-
-    function handleImageUpload(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                customizerState.imageSrc = evt.target.result;
-                document.getElementById('customImageDisplay').src = evt.target.result;
-                document.getElementById('customImageLayer').classList.remove('hidden');
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function selectCustomSize(size) {
-        customizerState.size = size;
-        document.querySelectorAll('#customSizePicker .size-btn').forEach(btn => {
-            btn.className = btn.innerText === size
-                ? 'size-btn py-2 text-xs font-bold border border-brand-gold bg-brand-gold/10 text-brand-gold rounded-xl'
-                : 'size-btn py-2 text-xs font-bold border border-[#8B5E3C]/25 rounded-xl text-[#6F5A4C] hover:border-brand-gold';
-        });
-    }
-
-    function resetCustomizer() {
-        changeShirtColor('#ffffff');
-        document.getElementById('customTextInput').value = '';
-        document.getElementById('customImageLayer').classList.add('hidden');
-        updateCustomText();
-    }
-
-    function addCustomShirtToCart() {
-        addToCart({
-            id: 'custom-' + Date.now(),
-            name: `Áo Tự Thiết Kế (${customizerState.size})`,
-            price: CUSTOM_PRICE,
-            size: customizerState.size,
-            image: 'áo tay dài.png',
-            isCustom: true,
-            details: customizerState.text ? `Chữ: "${customizerState.text}"` : 'Mẫu thiết kế riêng',
-            quantity: 1
-        });
-        openCartDrawer();
-    }
-
-    // --- 5. PRODUCTS & COLLECTION ---
-    function formatVND(amount) { return amount.toLocaleString('vi-VN') + 'đ'; }
-
-    function renderBestSellers() {
-        const container = document.getElementById('homeBestSellers');
-        if (!container) return;
-        container.innerHTML = productsData.slice(0, 4).map(p => `
-            <div class="bg-brand-card border border-[#8B5E3C]/15 rounded-2xl overflow-hidden group hover:border-brand-gold/50 transition-all duration-300 flex flex-col justify-between">
-                <div class="relative overflow-hidden h-64 bg-[#3B2A22]/8">
-                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <button onclick="openProductModal('${p.id}')" class="absolute bottom-3 right-3 p-3 bg-[#3B2A22]/50 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl backdrop-blur-md transition-colors text-xs font-bold">Xem Nhanh</button>
-                </div>
-                <div class="p-5 flex flex-col flex-grow justify-between">
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[10px] uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
-                            <span class="text-xs text-yellow-400 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> ${p.rating}</span>
+                            <!-- Custom Upload Image Layer -->
+                            <div id="customImageLayer" class="absolute cursor-move select-none hidden" style="top: 40%; left: 38%; width: 100px; height: 100px;">
+                                <img id="uploadedImagePreview" src="" class="w-full h-full object-contain pointer-events-none drop-shadow-md">
+                            </div>
                         </div>
-                        <h3 class="font-bold text-[#3B2A22] text-base line-clamp-1 mb-2">${p.name}</h3>
-                    </div>
-                    <div class="flex justify-between items-center pt-3 border-t border-[#8B5E3C]/10">
-                        <span class="text-brand-gold font-bold text-lg">${formatVND(p.price)}</span>
-                        <button onclick="quickAddToCart('${p.id}')" class="p-2.5 bg-white/10 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl transition-colors"><i class="fa-solid fa-cart-plus"></i></button>
-                    </div>
-                </div>
-            </div>`).join('');
-    }
 
-    function filterProducts() {
-        const cat = document.querySelector('input[name="catFilter"]:checked')?.value || 'all';
-        const maxPrice = parseInt(document.getElementById('priceRange')?.value || 299000);
-        const sort = document.getElementById('sortSelect')?.value || 'featured';
-
-        let filtered = productsData.filter(p => (cat === 'all' || p.category === cat) && p.price <= maxPrice);
-        if (sort === 'low-high') filtered.sort((a, b) => a.price - b.price);
-        else if (sort === 'high-low') filtered.sort((a, b) => b.price - a.price);
-
-        const grid = document.getElementById('productGrid');
-        const countText = document.getElementById('productCount');
-        if (countText) countText.innerText = `Hiển thị ${filtered.length} sản phẩm`;
-        if (!grid) return;
-
-        if (filtered.length === 0) {
-            grid.innerHTML = `<div class="col-span-full text-center py-12 text-[#806B5D]">Không tìm thấy sản phẩm nào phù hợp với bộ lọc.</div>`;
-            return;
-        }
-        grid.innerHTML = filtered.map(p => `
-            <div class="bg-brand-card border border-[#8B5E3C]/15 rounded-2xl overflow-hidden group hover:border-brand-gold/50 transition-all duration-300 flex flex-col justify-between">
-                <div class="relative overflow-hidden h-72 bg-[#3B2A22]/8">
-                    <img src="${p.image}" alt="${p.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                    <button onclick="openProductModal('${p.id}')" class="absolute bottom-3 right-3 p-3 bg-[#3B2A22]/50 hover:bg-brand-gold hover:text-black text-[#3B2A22] rounded-xl backdrop-blur-md transition-colors text-xs font-bold">Xem Nhanh</button>
-                </div>
-                <div class="p-5 flex flex-col flex-grow justify-between">
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="text-[10px] uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
-                            <span class="text-xs text-yellow-400 font-semibold"><i class="fa-solid fa-star text-[10px]"></i> ${p.rating}</span>
+                        <!-- Color Customizer Options (Independent Body & Sleeves) -->
+                        <div class="w-full bg-[#3B2A22]/5 p-4 rounded-xl border border-[#8B5E3C]/15 grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-[#6F5A4C] mb-2"><i class="fa-solid fa-shirt mr-1"></i> Màu Thân Áo</label>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="setBodyColor('#ffffff')" class="w-8 h-8 rounded-full bg-white border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Trắng"></button>
+                                    <button onclick="setBodyColor('#F7F3EE')" class="w-8 h-8 rounded-full bg-[#F7F3EE] border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Nâu sữa / Cream"></button>
+                                    <button onclick="setBodyColor('#3B2A22')" class="w-8 h-8 rounded-full bg-[#3B2A22] border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Nâu đậm"></button>
+                                    <button onclick="setBodyColor('#111827')" class="w-8 h-8 rounded-full bg-gray-900 border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Đen"></button>
+                                    <button onclick="setBodyColor('#991B1B')" class="w-8 h-8 rounded-full bg-red-800 border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Đỏ đô"></button>
+                                    <input type="color" onchange="setBodyColor(this.value)" class="w-8 h-8 rounded-full cursor-pointer border-0 bg-transparent" title="Màu tùy chỉnh">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-[#6F5A4C] mb-2"><i class="fa-solid fa-vest mr-1"></i> Màu Tay Áo (Riêng biệt)</label>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="setSleeveColor('#ffffff')" class="w-8 h-8 rounded-full bg-white border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Trắng"></button>
+                                    <button onclick="setSleeveColor('#F7F3EE')" class="w-8 h-8 rounded-full bg-[#F7F3EE] border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Nâu sữa"></button>
+                                    <button onclick="setSleeveColor('#8B5E3C')" class="w-8 h-8 rounded-full bg-[#8B5E3C] border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Nâu vàng brand"></button>
+                                    <button onclick="setSleeveColor('#3B2A22')" class="w-8 h-8 rounded-full bg-[#3B2A22] border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Nâu đậm"></button>
+                                    <button onclick="setSleeveColor('#111827')" class="w-8 h-8 rounded-full bg-gray-900 border-2 border-[#8B5E3C]/30 shadow-sm focus:scale-110 transition-transform" title="Đen"></button>
+                                    <input type="color" onchange="setSleeveColor(this.value)" class="w-8 h-8 rounded-full cursor-pointer border-0 bg-transparent" title="Màu tay áo tùy chỉnh">
+                                </div>
+                            </div>
                         </div>
-                        <h3 class="font-bold text-[#3B2A22] text-base line-clamp-1 mb-2">${p.name}</h3>
-                        <p class="text-xs text-[#806B5D] line-clamp-2 mb-4 font-light">${p.desc}</p>
+
                     </div>
-                    <div class="flex justify-between items-center pt-3 border-t border-[#8B5E3C]/10">
-                        <span class="text-brand-gold font-bold text-lg">${formatVND(p.price)}</span>
-                        <button onclick="quickAddToCart('${p.id}')" class="px-4 py-2 bg-brand-gold text-black font-bold rounded-xl text-xs hover:bg-[#6B3F2A] transition-colors flex items-center gap-1.5"><i class="fa-solid fa-cart-plus"></i> Thêm</button>
+
+                    <!-- Right: Customization Controls (5 cols) -->
+                    <div class="lg:col-span-5 bg-brand-card border border-[#8B5E3C]/15 rounded-2xl p-6 flex flex-col justify-between">
+                        <div class="space-y-6">
+                            <!-- Kiểu áo / Category -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-[#3B2A22] mb-2">1. Chọn Kiểu Áo</label>
+                                <select id="garmentType" onchange="changeGarmentModel()" class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-brand-gold">
+                                    <option value="tshirt">Áo Thun T-Shirt Cotton Premium (199.000đ)</option>
+                                    <option value="longsleeve">Áo Tay Dài Longsleeve (219.000đ)</option>
+                                    <option value="hoodie">Áo Hoodie Nỉ Chân Cua (299.000đ)</option>
+                                    <option value="windbreaker">Áo Khoác Dù Windbreaker (279.000đ)</option>
+                                    <option value="sport">Áo Thể Thao Sportswear (149.000đ)</option>
+                                </select>
+                            </div>
+
+                            <!-- Thêm Text / Chữ tùy chỉnh -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-[#3B2A22] mb-2">2. Nội Dung Chữ In</label>
+                                <input type="text" id="customTextInput" oninput="updateCustomText()" placeholder="Nhập tên, slogan của bạn..." class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-brand-gold mb-3">
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-[#6F5A4C] mb-1">Font Chữ (Google Fonts)</label>
+                                        <select id="fontFamilySelect" onchange="updateFontFamily()" class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-brand-gold">
+                                            <option value="'Plus Jakarta Sans', sans-serif">Jakarta Sans</option>
+                                            <option value="'Playfair Display', serif">Playfair Serif</option>
+                                            <option value="monospace">Monospace Code</option>
+                                            <option value="cursive">Cursive Script</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-semibold text-[#6F5A4C] mb-1">Màu Chữ</label>
+                                        <input type="color" id="textColorPicker" onchange="updateTextColor(this.value)" value="#000000" class="w-full h-9 rounded-lg cursor-pointer border border-[#8B5E3C]/20 p-1 bg-[#3B2A22]/5">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tải ảnh lên -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-[#3B2A22] mb-2">3. Tải Logo / Hình Ảnh Lên Áo</label>
+                                <input type="file" id="imageUploadInput" accept="image/*" onchange="handleImageUpload(event)" class="w-full text-xs text-[#806B5D] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-gold/10 file:text-brand-gold hover:file:bg-brand-gold/20 cursor-pointer">
+                            </div>
+
+                            <!-- Chọn Size và Số lượng -->
+                            <div class="grid grid-cols-2 gap-4 pt-2">
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-[#3B2A22] mb-2">Kích Thước (Size)</label>
+                                    <select id="customSize" class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:border-brand-gold">
+                                        <option value="S">Size S (45 - 55kg)</option>
+                                        <option value="M" selected>Size M (56 - 65kg)</option>
+                                        <option value="L">Size L (66 - 75kg)</option>
+                                        <option value="XL">Size XL (76 - 85kg)</option>
+                                        <option value="XXL">Size XXL (> 85kg)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-wider text-[#3B2A22] mb-2">Số Lượng</label>
+                                    <input type="number" id="customQuantity" min="1" value="1" onchange="updateCustomTotalPrice()" oninput="updateCustomTotalPrice()" class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-2 text-sm font-medium focus:outline-none focus:border-brand-gold">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Button -->
+                        <div class="mt-8 pt-6 border-t border-[#8B5E3C]/15">
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs uppercase text-[#806B5D] font-semibold">Tổng giá trị thiết kế:</span>
+                                <span class="text-2xl font-serif font-bold text-brand-gold" id="customTotalPrice">199.000đ</span>
+                            </div>
+                            <button onclick="addCustomShirtToCart()" class="w-full py-4 bg-gradient-to-r from-brand-gold to-[#6B3F2A] text-black font-bold uppercase tracking-wider text-sm rounded-xl hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cart-plus"></i> Thêm Thiết Kế Vào Giỏ Hàng
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. TRANG BỘ SƯU TẬP (#collection) -->
+        <section id="view-collection" class="page-view">
+            <div class="bg-brand-card py-16 border-b border-[#8B5E3C]/15">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <span class="text-brand-gold text-xs uppercase tracking-[0.3em] font-semibold">Wearu Catalog 2026</span>
+                    <h1 class="font-serif text-4xl sm:text-5xl font-bold text-[#3B2A22] mt-2">Bộ Sưu Tập Thời Trang</h1>
+                    <p class="text-[#806B5D] text-sm mt-3">Giá cực ưu đãi chỉ từ 149k - 299k. Tất cả sản phẩm được may đo chuẩn form, chất liệu cao cấp.</p>
+                </div>
+            </div>
+
+            <!-- Filter Categories -->
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
+                    <button onclick="filterCollection('all', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-gold text-black transition-all shadow-sm">Tất Cả</button>
+                    <button onclick="filterCollection('tshirt', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-card border border-[#8B5E3C]/20 text-[#6F5A4C] hover:text-brand-gold transition-all">Áo Thun</button>
+                    <button onclick="filterCollection('longsleeve', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-card border border-[#8B5E3C]/20 text-[#6F5A4C] hover:text-brand-gold transition-all">Áo Tay Dài</button>
+                    <button onclick="filterCollection('hoodie', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-card border border-[#8B5E3C]/20 text-[#6F5A4C] hover:text-brand-gold transition-all">Hoodie & Sweatshirt</button>
+                    <button onclick="filterCollection('windbreaker', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-card border border-[#8B5E3C]/20 text-[#6F5A4C] hover:text-brand-gold transition-all">Áo Khoác Dù</button>
+                    <button onclick="filterCollection('sport', event)" class="collection-filter-btn px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-brand-card border border-[#8B5E3C]/20 text-[#6F5A4C] hover:text-brand-gold transition-all">Áo Thể Thao</button>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="collectionGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. TRANG LIÊN HỆ (#contact) -->
+        <section id="view-contact" class="page-view">
+            <div class="bg-brand-card py-16 border-b border-[#8B5E3C]/15">
+                <div class="max-w-4xl mx-auto text-center px-4">
+                    <span class="text-brand-gold text-xs uppercase tracking-[0.3em] font-semibold">Get In Touch</span>
+                    <h1 class="font-serif text-4xl sm:text-5xl font-bold text-[#3B2A22] mt-2">Liên Hệ & Showroom</h1>
+                    <p class="text-[#806B5D] text-sm sm:text-base mt-4">Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ mọi thắc mắc của bạn.</p>
+                </div>
+            </div>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <!-- Contact Info Cards -->
+                    <div class="space-y-6">
+                        <div class="bg-brand-card p-8 rounded-2xl border border-[#8B5E3C]/15 flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-xl flex-shrink-0">
+                                <i class="fa-solid fa-location-dot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-[#3B2A22] mb-1">Showroom & Studio Chính Thức</h3>
+                                <p class="text-sm text-[#806B5D] leading-relaxed">Đường Số 24, Phường 11, Quận 6, TP. Hồ Chí Minh</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-brand-card p-8 rounded-2xl border border-[#8B5E3C]/15 flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-xl flex-shrink-0">
+                                <i class="fa-solid fa-phone"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-[#3B2A22] mb-1">Hotline Hỗ Trợ 24/7</h3>
+                                <p class="text-sm text-[#806B5D] leading-relaxed">0908 048 037</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-brand-card p-8 rounded-2xl border border-[#8B5E3C]/15 flex items-start gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-brand-gold/10 text-brand-gold flex items-center justify-center text-xl flex-shrink-0">
+                                <i class="fa-solid fa-envelope"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-[#3B2A22] mb-1">Hòm Thư Điện Tử</h3>
+                                <p class="text-sm text-[#806B5D] leading-relaxed">wearu.studio@gmail.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="bg-brand-card p-8 rounded-3xl border border-[#8B5E3C]/15">
+                        <h3 class="font-serif text-2xl font-bold text-[#3B2A22] mb-6">Gửi Tin Nhắn Cho Chúng Tôi</h3>
+                        <form onsubmit="submitContactForm(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-[#3B2A22] mb-1">Họ và Tên</label>
+                                <input type="text" required placeholder="Nhập tên của bạn..." class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-[#3B2A22] mb-1">Số Điện Thoại / Email</label>
+                                <input type="text" required placeholder="Nhập số điện thoại hoặc email..." class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase text-[#3B2A22] mb-1">Nội Dung Tin Nhắn</label>
+                                <textarea rows="4" required placeholder="Bạn cần Wearu hỗ trợ điều gì..." class="w-full bg-[#3B2A22]/5 border border-[#8B5E3C]/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-brand-gold"></textarea>
+                            </div>
+                            <button type="submit" class="w-full py-4 bg-gradient-to-r from-brand-gold to-[#6B3F2A] text-black font-bold uppercase tracking-wider text-sm rounded-xl hover:shadow-lg transition-all">
+                                Gửi Yêu Cầu
+                            </button>
+                        </form>
                     </div>
                 </div>
-            </div>`).join('');
-    }
+            </div>
+        </section>
 
-    function updatePriceFilter(val) {
-        document.getElementById('priceValue').innerText = `Dưới ${formatVND(parseInt(val))}`;
-        filterProducts();
-    }
+    </main>
 
-    // --- 6. SHOPPING CART ---
-    function calcShipping(subtotal) { return (subtotal === 0 || subtotal >= FREESHIP_MIN) ? 0 : SHIP_FEE; }
+    <!-- Cart Slide-over Drawer -->
+    <div id="cartDrawer" class="fixed inset-0 z-50 overflow-hidden hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeCartDrawer()"></div>
+        <div class="absolute inset-y-0 right-0 max-w-full flex pl-10">
+            <div class="w-screen max-w-md bg-[#FFFDFC] shadow-2xl flex flex-col border-l border-[#8B5E3C]/20">
+                <!-- Cart Header -->
+                <div class="p-6 border-b border-[#8B5E3C]/15 flex items-center justify-between bg-brand-card">
+                    <h3 class="font-serif text-xl font-bold text-[#3B2A22] flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-brand-gold"></i> Giỏ Hàng Của Bạn
+                    </h3>
+                    <button onclick="closeCartDrawer()" class="p-2 text-[#6F5A4C] hover:text-[#3B2A22]">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
 
-    function quickAddToCart(productId) {
-        const p = productsData.find(x => x.id === productId);
-        if (!p) return;
-        addToCart({ id: p.id + '-M', productId: p.id, name: p.name, price: p.price, size: 'M', image: p.image, quantity: 1 });
-        openCartDrawer();
-    }
+                <!-- Cart Items List -->
+                <div class="flex-grow overflow-y-auto p-6 space-y-4" id="cartDrawerItems">
+                    <!-- Populated by JS -->
+                </div>
 
-    function addToCart(item) {
-        const i = cart.findIndex(x => x.id === item.id);
-        if (i > -1) cart[i].quantity += 1; else cart.push(item);
-        updateCartUI();
-    }
+                <!-- Cart Footer & Checkout -->
+                <div class="p-6 border-t border-[#8B5E3C]/15 bg-brand-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-semibold text-[#6F5A4C]">Tạm tính:</span>
+                        <span class="text-xl font-bold font-serif text-brand-gold" id="cartDrawerSubtotal">0đ</span>
+                    </div>
+                    <button onclick="checkoutCart()" class="w-full py-4 bg-gradient-to-r from-brand-gold to-[#6B3F2A] text-black font-bold uppercase tracking-wider text-sm rounded-xl hover:shadow-lg transition-all">
+                        Tiến Hành Thanh Toán
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    function updateQuantity(itemId, delta) {
-        const idx = cart.findIndex(i => i.id === itemId);
-        if (idx > -1) {
-            cart[idx].quantity += delta;
-            if (cart[idx].quantity <= 0) cart.splice(idx, 1);
+    <!-- Footer -->
+    <footer class="bg-[#3B2A22] text-[#F7F3EE] pt-16 pb-12 border-t border-[#8B5E3C]/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+                <div>
+                    <h3 class="font-serif text-2xl font-bold text-brand-gold mb-4">Wearu.studio</h3>
+                    <p class="text-xs text-[#D8CEC5] leading-relaxed mb-4">
+                        Thương hiệu thời trang cao cấp tích hợp nền tảng tự thiết kế 3D đầu tiên tại Việt Nam. Khẳng định phong cách độc bản.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-black transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-black transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-brand-gold hover:text-black transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm tracking-widest uppercase text-brand-gold mb-4">Danh Mục Nổi Bật</h4>
+                    <ul class="space-y-2 text-xs text-[#D8CEC5]">
+                        <li><a href="#collection" onclick="navigateTo('collection', 'tshirt')" class="hover:text-brand-gold transition-colors">Áo Thun Cotton</a></li>
+                        <li><a href="#collection" onclick="navigateTo('collection', 'longsleeve')" class="hover:text-brand-gold transition-colors">Áo Tay Dài (Longsleeve)</a></li>
+                        <li><a href="#collection" onclick="navigateTo('collection', 'hoodie')" class="hover:text-brand-gold transition-colors">Hoodie & Sweatshirt</a></li>
+                        <li><a href="#collection" onclick="navigateTo('collection', 'windbreaker')" class="hover:text-brand-gold transition-colors">Áo Khoác Dù</a></li>
+                        <li><a href="#collection" onclick="navigateTo('collection', 'sport')" class="hover:text-brand-gold transition-colors">Áo Thể Thao</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm tracking-widest uppercase text-brand-gold mb-4">Chính Sách & Hỗ Trợ</h4>
+                    <ul class="space-y-2 text-xs text-[#D8CEC5]">
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Chính sách bảo hành & đổi trả</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Hướng dẫn chọn size</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Chính sách bảo mật thông tin</a></li>
+                        <li><a href="#" class="hover:text-brand-gold transition-colors">Điều khoản dịch vụ in ấn</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-sm tracking-widest uppercase text-brand-gold mb-4">Đăng Ký Nhận Tin</h4>
+                    <p class="text-xs text-[#D8CEC5] mb-3">Nhận mã giảm giá 10% cho đơn hàng đầu tiên.</p>
+                    <form onsubmit="subscribeNewsletter(event)" class="space-y-2">
+                        <input type="email" required placeholder="Email của bạn..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-brand-gold">
+                        <button type="submit" class="w-full py-2.5 bg-brand-gold text-black font-bold uppercase tracking-wider text-xs rounded-xl hover:bg-brand-goldlight transition-colors">Đăng Ký Ngay</button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-6 text-center text-xs text-[#D8CEC5]">
+                <p>&copy; 2026 Wearu.studio. All rights reserved. Designed for GitHub Pages deployment.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Database sản phẩm điều chỉnh nằm trong khoảng giá 149k - 299k
+        const productsCatalog = [
+            { id: 1, name: 'Áo Thun Basic Stay True', category: 'tshirt', price: 189000, image: 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=600&q=80', badge: 'Best Seller' },
+            { id: 2, name: 'Áo Tay Dài Minimalist', category: 'longsleeve', price: 219000, image: 'áo tay dài.png', badge: 'New' },
+            { id: 3, name: 'Hoodie Streetwear Oversized', category: 'hoodie', price: 299000, image: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=600&q=80', badge: 'Hot' },
+            { id: 4, name: 'Áo Khoác Dù Chống Nước Urban', category: 'windbreaker', price: 279000, image: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80', badge: 'Limited' },
+            { id: 5, name: 'Áo Thể Thao Pro Active', category: 'sport', price: 149000, image: 'https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=600&q=80', badge: 'Sale' },
+            { id: 6, name: 'Áo Polo Sợi Tre Bamboo', category: 'tshirt', price: 249000, image: 'https://images.unsplash.com/photo-1625910513413-730303e913a8?auto=format&fit=crop&w=600&q=80', badge: 'Premium' },
+            { id: 7, name: 'Sweatshirt Basic Nỉ Cua', category: 'hoodie', price: 269000, image: 'https://images.unsplash.com/photo-1578587018452-892bacefd3f2?auto=format&fit=crop&w=600&q=80', badge: '' },
+            { id: 8, name: 'Áo Thun Graphic Vintage', category: 'tshirt', price: 199000, image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?auto=format&fit=crop&w=600&q=80', badge: 'Trending' }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('wearu_cart')) || [];
+        let currentViewSide = 'front';
+
+        // Khởi động trang khi load
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRouting();
+            window.addEventListener('hashchange', handleRouting);
+            renderHomeBestSellers();
+            renderCollection('all');
+            updateCartBadge();
+            changeGarmentModel();
+        });
+
+        // Router đơn giản chuyển view SPA
+        function handleRouting() {
+            const hash = window.location.hash || '#home';
+            const routeName = hash.replace('#', '');
+            
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+
+            let targetView = document.getElementById('view-' + routeName);
+            if (!targetView) {
+                targetView = document.getElementById('view-home');
+            }
+            targetView.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Active menu link styling
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if(link.getAttribute('data-route') === routeName) {
+                    link.classList.add('text-brand-gold');
+                } else {
+                    link.classList.remove('text-brand-gold');
+                }
+            });
         }
-        updateCartUI();
-    }
 
-    function removeFromCart(itemId) {
-        cart = cart.filter(i => i.id !== itemId);
-        updateCartUI();
-    }
-
-    function updateCartUI() {
-        const badge = document.getElementById('cartBadge');
-        const list = document.getElementById('cartItemList');
-        const totalCount = cart.reduce((s, i) => s + i.quantity, 0);
-        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-        const ship = calcShipping(subtotal);
-
-        if (badge) badge.innerText = totalCount;
-        const sub = document.getElementById('cartSubtotal'); if (sub) sub.innerText = formatVND(subtotal);
-        const shipEl = document.getElementById('cartShipping'); if (shipEl) shipEl.innerText = ship === 0 ? 'Miễn phí' : formatVND(ship);
-        const tot = document.getElementById('cartTotal'); if (tot) tot.innerText = formatVND(subtotal + ship);
-
-        if (!list) return;
-        if (cart.length === 0) {
-            list.innerHTML = `<div class="text-center py-12 text-[#927C6D]"><i class="fa-solid fa-bag-shopping text-4xl mb-3 text-gray-600 block"></i>Giỏ hàng của bạn đang trống</div>`;
-            return;
+        function navigateTo(route, subParam = null) {
+            window.location.hash = '#' + route;
+            if(route === 'collection' && subParam) {
+                filterCollection(subParam);
+            }
         }
-        list.innerHTML = cart.map(item => `
-            <div class="flex gap-4 p-3 bg-[#3B2A22]/8 border border-[#8B5E3C]/10 rounded-xl items-center">
-                <img src="${item.image}" class="w-16 h-16 object-cover rounded-lg border border-[#8B5E3C]/15 shrink-0">
-                <div class="flex-grow">
-                    <h4 class="text-xs font-bold text-[#3B2A22] line-clamp-1">${item.name}</h4>
-                    <div class="text-[10px] text-[#806B5D] mt-0.5">Size: <span class="text-brand-gold font-bold">${item.size}</span></div>
-                    ${item.details ? `<div class="text-[10px] text-brand-gold">${item.details}</div>` : ''}
-                    <div class="text-xs font-bold text-brand-gold mt-1">${formatVND(item.price)}</div>
-                </div>
-                <div class="flex flex-col items-end gap-2">
-                    <button onclick="removeFromCart('${item.id}')" class="text-[#927C6D] hover:text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
-                    <div class="flex items-center gap-2 bg-brand-card px-2 py-1 rounded-lg border border-[#8B5E3C]/15 text-xs">
-                        <button onclick="updateQuantity('${item.id}', -1)" class="text-[#806B5D] hover:text-[#3B2A22]">-</button>
-                        <span class="font-bold text-[#3B2A22] min-w-[12px] text-center">${item.quantity}</span>
-                        <button onclick="updateQuantity('${item.id}', 1)" class="text-[#806B5D] hover:text-[#3B2A22]">+</button>
+
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+        function closeMobileMenu() {
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        // Notification toggle
+        function toggleNotifications() {
+            const menu = document.getElementById('notifMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Render Home Best Sellers
+        function renderHomeBestSellers() {
+            const container = document.getElementById('homeBestSellers');
+            if(!container) return;
+            container.innerHTML = productsCatalog.slice(0, 4).map(p => `
+                <div class="bg-brand-card rounded-2xl p-4 border border-[#8B5E3C]/15 group relative overflow-hidden flex flex-col justify-between">
+                    ${p.badge ? `<span class="absolute top-6 left-6 z-10 bg-brand-gold text-black text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">${p.badge}</span>` : ''}
+                    <div class="w-full h-64 rounded-xl overflow-hidden bg-white/5 mb-4 relative">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#3B2A22] text-base mb-1 truncate">${p.name}</h4>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="text-brand-gold font-bold font-serif text-lg">${p.price.toLocaleString()}đ</span>
+                            <button onclick="addToCart(${p.id})" class="px-3 py-2 bg-brand-gold/10 hover:bg-brand-gold text-brand-gold hover:text-black rounded-lg text-xs font-semibold uppercase transition-colors">
+                                <i class="fa-solid fa-cart-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>`).join('');
-    }
+            `).join('');
+        }
 
-    function openCartDrawer() {
-        document.getElementById('cartDrawerBackdrop').classList.remove('opacity-0', 'pointer-events-none');
-        document.getElementById('cartDrawer').classList.remove('translate-x-full');
-    }
-    function closeCartDrawer() {
-        document.getElementById('cartDrawerBackdrop').classList.add('opacity-0', 'pointer-events-none');
-        document.getElementById('cartDrawer').classList.add('translate-x-full');
-    }
-
-    // --- 7. MODALS ---
-    function openProductModal(productId) {
-        const p = productsData.find(x => x.id === productId);
-        if (!p) return;
-        document.getElementById('productModalContent').innerHTML = `
-            <button onclick="closeProductModal()" class="absolute top-4 right-4 text-[#806B5D] hover:text-[#3B2A22] p-2 z-10"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div class="rounded-xl overflow-hidden h-72 bg-[#3B2A22]/8"><img src="${p.image}" class="w-full h-full object-cover"></div>
-                <div class="space-y-4">
-                    <span class="text-xs uppercase font-bold text-brand-gold tracking-widest">${p.category}</span>
-                    <h2 class="text-2xl font-bold text-[#3B2A22]">${p.name}</h2>
-                    <div class="text-yellow-400 text-xs flex items-center gap-1 font-semibold"><i class="fa-solid fa-star"></i> ${p.rating} (48 đánh giá)</div>
-                    <p class="text-xs text-[#6F5A4C] leading-relaxed font-light">${p.desc}</p>
-                    <div class="text-2xl font-bold text-brand-gold">${formatVND(p.price)}</div>
-                    <div class="pt-4 flex gap-3">
-                        <button onclick="quickAddToCart('${p.id}'); closeProductModal();" class="flex-grow py-3 bg-brand-gold text-black font-bold uppercase tracking-wider text-xs rounded-xl hover:bg-[#6B3F2A] transition-colors">Thêm Vào Giỏ Hàng</button>
+        // Render Collection Grid
+        function renderCollection(category) {
+            const container = document.getElementById('collectionGrid');
+            if(!container) return;
+            const filtered = category === 'all' ? productsCatalog : productsCatalog.filter(p => p.category === category);
+            
+            container.innerHTML = filtered.map(p => `
+                <div class="bg-brand-card rounded-2xl p-4 border border-[#8B5E3C]/15 group relative overflow-hidden flex flex-col justify-between">
+                    ${p.badge ? `<span class="absolute top-6 left-6 z-10 bg-brand-gold text-black text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">${p.badge}</span>` : ''}
+                    <div class="w-full h-64 rounded-xl overflow-hidden bg-white/5 mb-4 relative">
+                        <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-[#3B2A22] text-base mb-1 truncate">${p.name}</h4>
+                        <div class="flex items-center justify-between mt-3">
+                            <span class="text-brand-gold font-bold font-serif text-lg">${p.price.toLocaleString()}đ</span>
+                            <button onclick="addToCart(${p.id})" class="px-4 py-2 bg-brand-gold/10 hover:bg-brand-gold text-brand-gold hover:text-black rounded-lg text-xs font-semibold uppercase transition-colors">
+                                Thêm vào giỏ
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>`;
-        document.getElementById('productModal').classList.remove('opacity-0', 'pointer-events-none');
-    }
-    function closeProductModal() {
-        document.getElementById('productModal').classList.add('opacity-0', 'pointer-events-none');
-    }
+            `).join('');
+        }
 
-    function openCheckoutModal() {
-        if (cart.length === 0) { alert('Giỏ hàng của bạn đang trống!'); return; }
-        closeCartDrawer();
-        const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
-        document.getElementById('checkoutTotal').innerText = formatVND(subtotal + calcShipping(subtotal));
-        document.getElementById('checkoutModal').classList.remove('opacity-0', 'pointer-events-none');
-    }
-    function closeCheckoutModal() {
-        document.getElementById('checkoutModal').classList.add('opacity-0', 'pointer-events-none');
-    }
-    function processCheckout(e) {
-        e.preventDefault();
-        alert('🎉 Đặt hàng thành công! Wearu Studio sẽ liên hệ xác nhận đơn hàng sớm nhất.');
-        cart = [];
-        updateCartUI();
-        closeCheckoutModal();
-    }
-    function handleContactSubmit(e) {
-        e.preventDefault();
-        alert('📩 Yêu cầu hỗ trợ của bạn đã được gửi. Wearu sẽ phản hồi trong 2 giờ làm việc!');
-        e.target.reset();
-    }
+        function filterCollection(category, e) {
+            document.querySelectorAll('.collection-filter-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-gold', 'text-black');
+                btn.classList.add('bg-brand-card', 'text-[#6F5A4C]');
+            });
+            if(e && e.target) {
+                e.target.classList.remove('bg-brand-card', 'text-[#6F5A4C]');
+                e.target.classList.add('bg-brand-gold', 'text-black');
+            }
+            renderCollection(category);
+        }
 
-    // --- 8. HEADER EVENTS ---
-    function toggleNotifications() { document.getElementById('notifMenu').classList.toggle('hidden'); }
-    function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
-    function closeMobileMenu() { document.getElementById('mobileMenu').classList.add('hidden'); }
-</script>
+        // CUSTOMIZER 3D LOGIC
+        function switchShirtView(side) {
+            currentViewSide = side;
+            const frontBtn = document.getElementById('viewFrontBtn');
+            const backBtn = document.getElementById('viewBackBtn');
+            const frontText = document.getElementById('frontTextLayer');
+            const backText = document.getElementById('backTextLayer');
+
+            if(side === 'front') {
+                frontBtn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg bg-brand-gold text-black transition-all";
+                backBtn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-[#6F5A4C] hover:text-[#3B2A22] transition-all";
+                frontText.classList.remove('hidden');
+                backText.classList.add('hidden');
+            } else {
+                backBtn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg bg-brand-gold text-black transition-all";
+                frontBtn.className = "px-4 py-1.5 text-xs font-semibold rounded-lg text-[#6F5A4C] hover:text-[#3B2A22] transition-all";
+                backText.classList.remove('hidden');
+                frontText.classList.add('hidden');
+            }
+        }
+
+        function setBodyColor(color) {
+            const shirtBody = document.getElementById('shirtBody');
+            if(shirtBody) shirtBody.setAttribute('fill', color);
+        }
+
+        function setSleeveColor(color) {
+            console.log("Sleeve color set to:", color);
+        }
+
+        function updateCustomText() {
+            const val = document.getElementById('customTextInput').value;
+            document.getElementById('customTextDisplay').innerText = val;
+            document.getElementById('backTextDisplay').innerText = val;
+        }
+
+        function updateFontFamily() {
+            const font = document.getElementById('fontFamilySelect').value;
+            document.getElementById('customTextDisplay').style.fontFamily = font;
+            document.getElementById('backTextDisplay').style.fontFamily = font;
+        }
+
+        function updateTextColor(color) {
+            document.getElementById('customTextDisplay').style.color = color;
+            document.getElementById('backTextDisplay').style.color = color;
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imgLayer = document.getElementById('customImageLayer');
+                    const preview = document.getElementById('uploadedImagePreview');
+                    preview.src = e.target.result;
+                    imgLayer.classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function resetCustomizer() {
+            document.getElementById('customTextInput').value = '';
+            document.getElementById('customTextDisplay').innerText = '';
+            document.getElementById('backTextDisplay').innerText = '';
+            document.getElementById('customImageLayer').classList.add('hidden');
+            setBodyColor('#ffffff');
+        }
+
+        function getBasePriceForGarment(type) {
+            switch(type) {
+                case 'sport': return 149000;
+                case 'tshirt': return 199000;
+                case 'longsleeve': return 219000;
+                case 'windbreaker': return 279000;
+                case 'hoodie': return 299000;
+                default: return 199000;
+            }
+        }
+
+        function changeGarmentModel() {
+            updateCustomTotalPrice();
+        }
+
+        function updateCustomTotalPrice() {
+            const type = document.getElementById('garmentType').value;
+            const qty = parseInt(document.getElementById('customQuantity').value) || 1;
+            const unitPrice = getBasePriceForGarment(type);
+            const total = unitPrice * qty;
+            document.getElementById('customTotalPrice').innerText = total.toLocaleString() + 'đ';
+        }
+
+        // CART & CHECKOUT LOGIC
+        function addToCart(productId) {
+            const prod = productsCatalog.find(p => p.id === productId);
+            if(!prod) return;
+            const existing = cart.find(item => item.id === productId && !item.isCustom);
+            if(existing) {
+                existing.quantity += 1;
+            } else {
+                cart.push({ ...prod, quantity: 1, size: 'M', isCustom: false });
+            }
+            saveCart();
+            openCartDrawer();
+        }
+
+        function addCustomShirtToCart() {
+            const text = document.getElementById('customTextInput').value || 'Áo Tự Thiết Kế Độc Bản';
+            const size = document.getElementById('customSize').value;
+            const qty = parseInt(document.getElementById('customQuantity').value) || 1;
+            const typeKey = document.getElementById('garmentType').value;
+            const unitPrice = getBasePriceForGarment(typeKey);
+            const typeText = document.getElementById('garmentType').options[document.getElementById('garmentType').selectedIndex].text.split(' (')[0];
+            
+            cart.push({
+                id: 'custom_' + Date.now(),
+                name: `${typeText} (${text})`,
+                price: unitPrice,
+                quantity: qty,
+                size: size,
+                isCustom: true
+            });
+            saveCart();
+            openCartDrawer();
+        }
+
+        function saveCart() {
+            localStorage.setItem('wearu_cart', JSON.stringify(cart));
+            updateCartBadge();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('cartBadge');
+            const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if(badge) badge.innerText = totalCount;
+        }
+
+        function openCartDrawer() {
+            renderCartDrawerItems();
+            document.getElementById('cartDrawer').classList.remove('hidden');
+        }
+
+        function closeCartDrawer() {
+            document.getElementById('cartDrawer').classList.add('hidden');
+        }
+
+        function renderCartDrawerItems() {
+            const container = document.getElementById('cartDrawerItems');
+            const subtotalEl = document.getElementById('cartDrawerSubtotal');
+            if(!container) return;
+
+            if(cart.length === 0) {
+                container.innerHTML = `<div class="text-center py-12 text-[#806B5D] text-sm">Giỏ hàng của bạn đang trống.</div>`;
+                if(subtotalEl) subtotalEl.innerText = '0đ';
+                return;
+            }
+
+            let subtotal = 0;
+            container.innerHTML = cart.map((item, index) => {
+                subtotal += item.price * item.quantity;
+                return `
+                    <div class="flex items-center gap-4 p-3 bg-white/5 rounded-xl border border-[#8B5E3C]/10">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-xs text-[#3B2A22]">${item.name}</h4>
+                            <p class="text-[11px] text-[#806B5D]">Size: ${item.size} | SL: ${item.quantity}</p>
+                            <span class="text-brand-gold font-bold font-serif text-xs">${(item.price * item.quantity).toLocaleString()}đ</span>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 hover:text-red-700 p-2 text-xs">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            if(subtotalEl) subtotalEl.innerText = subtotal.toLocaleString() + 'đ';
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            saveCart();
+            renderCartDrawerItems();
+        }
+
+        function checkoutCart() {
+            if(cart.length === 0) {
+                alert('Giỏ hàng của bạn đang trống!');
+                return;
+            }
+            alert('Cảm ơn bạn đã đặt hàng tại Wearu.studio! Đơn hàng của bạn đã được ghi nhận và sẽ có nhân viên gọi điện xác nhận trong ít phút.');
+            cart = [];
+            saveCart();
+            closeCartDrawer();
+        }
+
+        function submitContactForm(e) {
+            e.preventDefault();
+            alert('Cảm ơn bạn đã liên hệ với Wearu.studio! Chúng tôi đã nhận được tin nhắn và sẽ phản hồi sớm nhất.');
+            e.target.reset();
+        }
+
+        function subscribeNewsletter(e) {
+            e.preventDefault();
+            alert('Đăng ký nhận tin thành công! Mã giảm giá 10% của bạn là: WEARU2026');
+            e.target.reset();
+        }
+    </script>
+</body>
+</html>
